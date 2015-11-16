@@ -8,6 +8,13 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
+    <Page.Resources>
+        <!--通过XAML创建数据集视图，并通过视图定义分组（IsSourceGrouped）
+        ，每个分组中项目对应的路径（ItemsPath，对应的就是我们Group.Items）
+        ,Source表示当前视图的源，{Binding}表示绑定的是当前的上下文（DataContext）-->
+        <CollectionViewSource x:Name="cvsGroups" IsSourceGrouped="True" ItemsPath="Items" />
+    </Page.Resources>
+
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
@@ -19,5 +26,34 @@
                 <TextBlock x:Name="title" Style="{ThemeResource PageTitleTextBlockStyle}" Text="成绩"/>
             </c:PageHeader.HeaderContent>
         </c:PageHeader>
+        <SemanticZoom Grid.Row="1">
+            <SemanticZoom.ZoomedInView>
+                <ListView x:Name="listViewZoomInView" ItemsSource="{Binding Source={StaticResource cvsGroups}}" ItemTemplate="{StaticResource Score}">
+                    <ListView.HeaderTemplate>
+                        <DataTemplate>
+                            <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="4*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="2*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" HorizontalAlignment="Center" FontSize="20" FontWeight="Bold" Text="课程"/>
+                                <TextBlock Grid.Column="1" HorizontalAlignment="Center" FontSize="20" FontWeight="Bold" Text="学分"/>
+                                <TextBlock Grid.Column="2" HorizontalAlignment="Center" FontSize="20" FontWeight="Bold" Text="绩点"/>
+                                <TextBlock Grid.Column="3" HorizontalAlignment="Center" FontSize="20" FontWeight="Bold" Text="成绩"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.HeaderTemplate>
+                    <ListView.GroupStyle>
+                        <GroupStyle HeaderTemplate="{StaticResource ZoomInViewHeader}"/>
+                    </ListView.GroupStyle>
+                </ListView>
+            </SemanticZoom.ZoomedInView>
+            
+            <SemanticZoom.ZoomedOutView>
+                <ListView x:Name="listViewZoomOutView" SelectionMode="None" HorizontalAlignment="Center" VerticalAlignment="Center" ItemTemplate="{StaticResource ZoomOutViewHeader}"></ListView>
+            </SemanticZoom.ZoomedOutView>
+        </SemanticZoom>
     </Grid>
 </Page>

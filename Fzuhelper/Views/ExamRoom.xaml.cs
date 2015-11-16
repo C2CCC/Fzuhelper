@@ -15,6 +15,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Windows.Web.Http;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 // “空白页”项模板在 http://go.microsoft.com/fwlink/?LinkId=234238 上提供
 
@@ -27,7 +28,13 @@ namespace Fzuhelper.Views
     {
         private StorageFolder localFolder = ApplicationData.Current.LocalFolder;
 
-        private static bool again = true;
+        private static bool getAgain = true,initialAgain = true;
+        
+        private string jsonData;
+
+        private ExamRoomReturnValue errv;
+
+        private List<ExamRoomArr> examArr;
 
         public ExamRoom()
         {
@@ -38,6 +45,35 @@ namespace Fzuhelper.Views
 
         private async void IniList()
         {
+            try
+            {
+                //Get data from storage
+                StorageFile examRoom = await localFolder.GetFileAsync("examRoom.txt");
+                jsonData = await FileIO.ReadTextAsync(examRoom);
+                errv = JsonConvert.DeserializeObject<ExamRoomReturnValue>(jsonData);
+                //System.Diagnostics.Debug.WriteLine(errv.data["stuname"]);
+                examArr = JsonConvert.DeserializeObject<List<ExamRoomArr>>(errv.data["examArr"].ToString());
+                listView.ItemsSource = examArr;
+                initialAgain = true;
+            }
+            catch
+            {
+                if (initialAgain)
+                {
+                    initialAgain = !initialAgain;
+                    await GetExamRoom();
+                    IniList();
+                }
+                else
+                {
+                    MainPage.SendToast("无法获取列表");
+                }
+                return;
+            }
+        }
+
+        private async Task<string> GetExamRoom()
+        {
             //Get token
             try
             {
@@ -46,27 +82,34 @@ namespace Fzuhelper.Views
                 string token = (await FileIO.ReadTextAsync(usrInfo)).Split('\n')[1];
                 //Get data
                 HttpFormUrlEncodedContent content = new HttpFormUrlEncodedContent(new[] { new KeyValuePair<string, string>("token", token) });
-                string jsonData = await HttpRequest.GetFromJwch("get","getExamRoom", content);
-                ExamRoomReturnValue errv = JsonConvert.DeserializeObject<ExamRoomReturnValue>(jsonData);
-                //System.Diagnostics.Debug.WriteLine(errv.data["stuname"]);
-                examArr = JsonConvert.DeserializeObject<List<ExamRoomArr>>(errv.data["examArr"].ToString());
-                System.Diagnostics.Debug.WriteLine(examArr);
+                jsonData = await HttpRequest.GetFromJwch("get", "getExamRoom", content);
                 //System.Diagnostics.Debug.WriteLine(examArr.ElementAt<Dictionary<string,string>>(0)["courseName"]);
-                listView.ItemsSource = examArr;
+                try
+                {
+                    //Save as file
+                    StorageFile examRoom = await localFolder.CreateFileAsync("examRoom.txt", CreationCollisionOption.ReplaceExisting);
+                    await FileIO.WriteTextAsync(examRoom, jsonData);
+                }
+                catch
+                {
+
+                }
+                getAgain = true;
+                return "";
             }
             catch
             {
-                if (again)
+                if (getAgain)
                 {
-                    again = false;
+                    getAgain = !getAgain;
                     await HttpRequest.ReLogin();
-                    IniList();
+                    await GetExamRoom();
                 }
                 else
                 {
                     MainPage.SendToast("网络错误");
                 }
-                return;
+                return "";
             }
         }
 
@@ -91,7 +134,5 @@ namespace Fzuhelper.Views
 
             public string examRoom { get; set; }
         }
-
-        private List<ExamRoomArr> examArr;
     }
 }

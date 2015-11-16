@@ -131,14 +131,57 @@
         <Setter Property="Padding" Value="0"/>
     </Style>
 
-    <DataTemplate x:Key="examRoom">
-        <StackPanel>
-            <TextBlock Text="{Binding Path=courseName}"/>
-            <TextBlock Text="{Binding Path=teacherName}"/>
-            <TextBlock Text="{Binding Path=examDate}"/>
-            <TextBlock Text="{Binding Path=examTime}"/>
-            <TextBlock Text="{Binding Path=examRoom}"/>
-        </StackPanel>
+    <Style TargetType="ListViewItem">
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+    </Style>
+
+    <!--ExamRoom-->
+    <DataTemplate x:Key="ExamRoom">
+        <Border BorderBrush="#F1F1F1" BorderThickness="0 0 0 1" Margin="10 0 10 0">
+        <Grid Margin="5 10 5 10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Vertical">
+                <TextBlock Text="{Binding Path=courseName}"/>
+                <TextBlock Text="{Binding Path=teacherName}"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Stretch">
+                <TextBlock Text="{Binding Path=examDate}" HorizontalAlignment="Right"/>
+                <TextBlock Text="{Binding Path=examTime}" HorizontalAlignment="Right"/>
+                <TextBlock Text="{Binding Path=examRoom}" HorizontalAlignment="Right"/>
+            </StackPanel>
+        </Grid>
+        </Border>
     </DataTemplate>
+    <!--ExamRoom end-->
+
+    <!--Score-->
+    <DataTemplate x:Key="Score">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="4*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" TextWrapping="Wrap" Text="{Binding Path=courseName}"/>
+            <TextBlock Grid.Column="1" HorizontalAlignment="Center" Text="{Binding Path=credit}"/>
+            <TextBlock Grid.Column="2" HorizontalAlignment="Center" Text="{Binding Path=gradePoint}"/>
+            <TextBlock Grid.Column="3" HorizontalAlignment="Center" Text="{Binding Path=sore}"/>
+        </Grid>
+    </DataTemplate>
+
+    <DataTemplate x:Key="ZoomInViewHeader">
+        <Border BorderBrush="#F1F1F1" BorderThickness="0 0 0 1">
+            <TextBlock Text="{Binding Path=Name}" Foreground="{ThemeResource ApplicationForegroundThemeBrush}" Style="{StaticResource SubtitleTextBlockStyle}"/>
+        </Border>
+    </DataTemplate>
+
+    <DataTemplate x:Key="ZoomOutViewHeader">
+        <TextBlock Text="{Binding Path=Group.Name}" Style="{StaticResource SubtitleTextBlockStyle}" TextWrapping="Wrap"/>
+    </DataTemplate>
+    <!--Score end-->
 
 </ResourceDictionary>

@@ -19,10 +19,6 @@
                 <TextBlock x:Name="title" Style="{ThemeResource PageTitleTextBlockStyle}" Text="考场"/>
             </c:PageHeader.HeaderContent>
         </c:PageHeader>
-        <StackPanel Grid.Row="1">
-            <ScrollViewer x:Name="scrollViewer" VerticalScrollBarVisibility="Hidden" VerticalScrollMode="Enabled" HorizontalScrollMode="Disabled">
-                <ListView x:Name="listView" ItemTemplate="{StaticResource examRoom}"></ListView>
-            </ScrollViewer>
-        </StackPanel>
+        <ListView x:Name="listView" Grid.Row="1" IsSwipeEnabled="True" ItemTemplate="{StaticResource ExamRoom}"></ListView>
     </Grid>
 </Page>

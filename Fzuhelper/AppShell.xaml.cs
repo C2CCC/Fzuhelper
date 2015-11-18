@@ -16,6 +16,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Fzuhelper.Controls;
 using Fzuhelper.Views;
+using Windows.Storage;
 
 namespace Fzuhelper
 {
@@ -25,6 +26,8 @@ namespace Fzuhelper
     /// </summary>
     public sealed partial class AppShell : Page
     {
+        private ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
+
         // Declare the top level nav items
         private List<NavMenuItem> navlist = new List<NavMenuItem>(
             new[]
@@ -98,7 +101,7 @@ namespace Fzuhelper
                 // suppressing the initial entrance animation.
                 this.AppFrame.Navigate(typeof(Timetable));
             }
-
+            
         }
 
         public Frame AppFrame { get { return this.frame; } }
@@ -324,6 +327,20 @@ namespace Fzuhelper
             {
                 args.ItemContainer.ClearValue(AutomationProperties.NameProperty);
             }
+        }
+
+        private void logOut_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            localSettings.Values["IsLogedIn"] = false;
+            try
+            {
+                AppFrame.BackStack.Clear();
+            }
+            catch
+            {
+
+            }
+            Frame.Navigate(typeof(MainPage));
         }
     }
 }

@@ -24,6 +24,7 @@ namespace Fzuhelper
     sealed partial class App : Application
     {
         private StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+        private ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
         /// <summary>
         /// 初始化单一实例应用程序对象。这是执行的创作代码的第一行，
         /// 已执行，逻辑上等同于 main() 或 WinMain()。
@@ -42,7 +43,7 @@ namespace Fzuhelper
         /// 将在启动应用程序以打开特定文件等情况下使用。
         /// </summary>
         /// <param name="e">有关启动请求和过程的详细信息。</param>
-        protected override async void OnLaunched(LaunchActivatedEventArgs e)
+        protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
 
 #if DEBUG
@@ -77,10 +78,17 @@ namespace Fzuhelper
                 // 当导航堆栈尚未还原时，导航到第一页，
                 // 并通过将所需信息作为导航参数传入来配置
                 // 参数
+                object IsLogedIn = localSettings.Values["IsLogedIn"];
                 try
                 {
-                    StorageFile accInfo = await localFolder.GetFileAsync("accInfo.txt");
-                    rootFrame.Navigate(typeof(AppShell), e.Arguments);
+                    if ((bool)IsLogedIn)
+                    {
+                        rootFrame.Navigate(typeof(AppShell), e.Arguments);
+                    }
+                    else
+                    {
+                        rootFrame.Navigate(typeof(MainPage), e.Arguments);
+                    }
                 }
                 catch
                 {

@@ -30,6 +30,8 @@ namespace Fzuhelper
     {
         private StorageFolder localFolder = ApplicationData.Current.LocalFolder;
 
+        private ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
+
         public LogInReturnValue l = new LogInReturnValue();
 
         public MainPage()
@@ -121,6 +123,8 @@ namespace Fzuhelper
             StorageFile accInfo = await localFolder.CreateFileAsync("accInfo.txt", CreationCollisionOption.ReplaceExisting);
             await FileIO.WriteTextAsync(accInfo, stunum+"\n"+passwd);
 
+            //Update login state
+            localSettings.Values["IsLogedIn"] = true;
         }
 
         private async void DirectToIndex(string response)

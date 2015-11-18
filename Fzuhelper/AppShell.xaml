@@ -64,8 +64,19 @@
                    OpenPaneLength="256"
                    IsTabStop="False">
             <SplitView.Pane>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel x:Name="userInfoHeader" Grid.Row="0">
+                        <TextBlock x:Name="userName" Text="" FontSize="24"/>
+                        <TextBlock x:Name="termTime" Text=""/>
+                    </StackPanel>
                 <!-- A custom ListView to display the items in the pane.  The automation Name is set in the ContainerContentChanging event. -->
                 <controls:NavMenuListView x:Name="NavMenuList"
+                                          Grid.Row="1"
                                           TabIndex="3"
                                           Margin="0,48,0,0"
                                           ContainerContentChanging="NavMenuItemContainerContentChanging"
@@ -83,6 +94,17 @@
                                 Click="BackButton_Click"/>
                     </controls:NavMenuListView.Header>
                 </controls:NavMenuListView>
+                    <ListView Grid.Row="2" SelectionMode="None" IsItemClickEnabled="True" ItemClick="logOut_ItemClick">
+                        <ListViewItem x:Name="logOut">
+                            <ListViewItem.Content>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                                    <SymbolIcon Symbol="Admin" HorizontalAlignment="Stretch"/>
+                                    <TextBlock Text="注销" Margin="24 0 0 0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </ListViewItem.Content>
+                        </ListViewItem>
+                    </ListView>
+                </Grid>
             </SplitView.Pane>
 
             <!-- OnNavigatingToPage we synchronize the selected item in the nav menu with the current page.

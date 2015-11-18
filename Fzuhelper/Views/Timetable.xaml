@@ -21,7 +21,7 @@
             </c:PageHeader.HeaderContent>
         </c:PageHeader>
         <StackPanel Grid.Row="1">
-            <GridView x:Name="gridView" Height="621"/>
+            <GridView x:Name="gridView" VerticalAlignment="Stretch"></GridView>
 
         </StackPanel>
         

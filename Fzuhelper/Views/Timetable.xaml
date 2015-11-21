@@ -9,21 +9,135 @@
     DataContext="{Binding RelativeSource={RelativeSource Mode=Self}}"
     mc:Ignorable="d">
 
+
+    <Page.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </Page.Resources>
+    
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
 
-        <c:PageHeader x:Name="pageHeader">
-            <c:PageHeader.HeaderContent>
-                <TextBlock x:Name="title" Style="{ThemeResource PageTitleTextBlockStyle}" Text="课表"/>
-            </c:PageHeader.HeaderContent>
-        </c:PageHeader>
-        <StackPanel Grid.Row="1">
-            <GridView x:Name="gridView" VerticalAlignment="Stretch"></GridView>
+        <CommandBar x:Name="topbar" VerticalAlignment="Top" HorizontalContentAlignment="Stretch">
+            <AppBarButton x:Name="selectedWeekBtn" Click="selectedWeekBtn_Click">
+                <TextBlock x:Name="selectedWeek" HorizontalAlignment="Center"/>
+            </AppBarButton>
+            <AppBarToggleButton Icon="Page" Label="单日视图" Click="SingleDayCourseToggle_Click"/>
+            <AppBarButton x:Name="refreshTimetable" Icon="Refresh" Label="刷新" Click="refreshTimetable_Click"/>
+            <!--<AppBarSeparator/>
+            <AppBarToggleButton Icon="Sort" Label="Sort"/>-->
+            <CommandBar.SecondaryCommands>
+                <!--<AppBarButton Label="Menu Item 1"/>
+                <AppBarButton Label="Menu Item 2"/>
+                <AppBarButton Label="Menu Item 3"/>-->
+            </CommandBar.SecondaryCommands>
+            <CommandBar.Content>
+                <c:PageHeader x:Name="pageHeader">
+                    <c:PageHeader.HeaderContent>
+                        <TextBlock x:Name="title" Style="{ThemeResource PageTitleTextBlockStyle}" Text="课表"/>
+                    </c:PageHeader.HeaderContent>
+                </c:PageHeader>
+            </CommandBar.Content>
+        </CommandBar>
 
-        </StackPanel>
         
+        <ScrollViewer x:Name="timeTableView" Grid.Row="1" Visibility="Visible" HorizontalScrollMode="Disabled" VerticalScrollMode="Enabled" VerticalScrollBarVisibility="Hidden">
+            <Grid x:Name="timeTableMain">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="70"/>
+                    <RowDefinition Height="70"/>
+                    <RowDefinition Height="70"/>
+                    <RowDefinition Height="70"/>
+                    <RowDefinition Height="70"/>
+                    <RowDefinition Height="70"/>
+                    <RowDefinition Height="70"/>
+                    <RowDefinition Height="70"/>
+                    <RowDefinition Height="70"/>
+                    <RowDefinition Height="70"/>
+                    <RowDefinition Height="70"/>
+                </Grid.RowDefinitions>
+                <!--Define the first row-->
+            <TextBlock Text="周一" Grid.Row="0" Grid.Column="1"/>
+            <TextBlock Text="周二" Grid.Row="0" Grid.Column="2"/>
+            <TextBlock Text="周三" Grid.Row="0" Grid.Column="3"/>
+            <TextBlock Text="周四" Grid.Row="0" Grid.Column="4"/>
+            <TextBlock Text="周五" Grid.Row="0" Grid.Column="5"/>
+            <TextBlock Text="周六" Grid.Row="0" Grid.Column="6"/>
+            <TextBlock Text="周日" Grid.Row="0" Grid.Column="7"/>
+            <!--Define the first column-->
+            <TextBlock Text="1" Grid.Column="0" Grid.Row="1"/>
+            <TextBlock Text="2" Grid.Column="0" Grid.Row="2"/>
+            <TextBlock Text="3" Grid.Column="0" Grid.Row="3"/>
+            <TextBlock Text="4" Grid.Column="0" Grid.Row="4"/>
+            <TextBlock Text="5" Grid.Column="0" Grid.Row="5"/>
+            <TextBlock Text="6" Grid.Column="0" Grid.Row="6"/>
+            <TextBlock Text="7" Grid.Column="0" Grid.Row="7"/>
+            <TextBlock Text="8" Grid.Column="0" Grid.Row="8"/>
+            <TextBlock Text="9" Grid.Column="0" Grid.Row="9"/>
+            <TextBlock Text="10" Grid.Column="0" Grid.Row="10"/>
+            <TextBlock Text="11" Grid.Column="0" Grid.Row="11"/>
+        </Grid>
+        </ScrollViewer>
+        <Pivot x:Name="singleDayCourseView" Grid.Row="1" Visibility="Collapsed">
+            <PivotItem>
+                <PivotItem.Header>
+                    <TextBlock Text="周一" FontSize="14"/>
+                </PivotItem.Header>
+                <ListView x:Name="MonCourse" IsSwipeEnabled="True" ItemTemplate="{StaticResource SingleDayCourseTemplate}"/>
+            </PivotItem>
+            <PivotItem>
+                <PivotItem.Header>
+                    <TextBlock Text="周二" FontSize="14"/>
+                </PivotItem.Header>
+                <ListView x:Name="TueCourse" IsSwipeEnabled="True" ItemTemplate="{StaticResource SingleDayCourseTemplate}"/>
+            </PivotItem>
+            <PivotItem>
+                <PivotItem.Header>
+                    <TextBlock Text="周三" FontSize="14"/>
+                </PivotItem.Header>
+                <ListView x:Name="WedCourse" IsSwipeEnabled="True" ItemTemplate="{StaticResource SingleDayCourseTemplate}"/>
+            </PivotItem>
+            <PivotItem>
+                <PivotItem.Header>
+                    <TextBlock Text="周四" FontSize="14"/>
+                </PivotItem.Header>
+                <ListView x:Name="ThuCourse" IsSwipeEnabled="True" ItemTemplate="{StaticResource SingleDayCourseTemplate}"/>
+            </PivotItem>
+            <PivotItem>
+                <PivotItem.Header>
+                    <TextBlock Text="周五" FontSize="14"/>
+                </PivotItem.Header>
+                <ListView x:Name="FriCourse" IsSwipeEnabled="True" ItemTemplate="{StaticResource SingleDayCourseTemplate}"/>
+            </PivotItem>
+            <PivotItem>
+                <PivotItem.Header>
+                    <TextBlock Text="周六" FontSize="14"/>
+                </PivotItem.Header>
+                <ListView x:Name="SatCourse" IsSwipeEnabled="True" ItemTemplate="{StaticResource SingleDayCourseTemplate}"/>
+            </PivotItem>
+            <PivotItem>
+                <PivotItem.Header>
+                    <TextBlock Text="周日" FontSize="14"/>
+                </PivotItem.Header>
+                <ListView x:Name="SunCourse" IsSwipeEnabled="True" ItemTemplate="{StaticResource SingleDayCourseTemplate}"/>
+            </PivotItem>
+        </Pivot>
+        <ProgressRing x:Name="refreshIndicator" Grid.Row="1" Width="80" Height="80"/>
     </Grid>
 </Page>

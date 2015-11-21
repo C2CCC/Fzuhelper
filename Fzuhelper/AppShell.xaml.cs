@@ -26,6 +26,8 @@ namespace Fzuhelper
     /// </summary>
     public sealed partial class AppShell : Page
     {
+        private StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+
         private ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
 
         // Declare the top level nav items
@@ -85,7 +87,9 @@ namespace Fzuhelper
                     this.CheckTogglePaneButtonSizeChanged();
                 });
 
-            SystemNavigationManager.GetForCurrentView().BackRequested += SystemNavigationManager_BackRequested;
+            //Hide the app's back button anyway
+            this.BackButton.Visibility = Visibility.Collapsed;
+            //SystemNavigationManager.GetForCurrentView().BackRequested += SystemNavigationManager_BackRequested;
 
             // If on a phone device that has hardware buttons then we hide the app's back button.
             if (ApiInformation.IsTypePresent("Windows.Phone.UI.Input.HardwareButtons"))
@@ -329,9 +333,36 @@ namespace Fzuhelper
             }
         }
 
-        private void logOut_ItemClick(object sender, ItemClickEventArgs e)
+        private async void logOut_ItemClick(object sender, ItemClickEventArgs e)
         {
             localSettings.Values["IsLogedIn"] = false;
+            try
+            {
+                StorageFile timetable = await localFolder.GetFileAsync("timetable.txt");
+                await timetable.DeleteAsync();
+            }
+            catch
+            {
+
+            }
+            try
+            {
+                StorageFile score = await localFolder.GetFileAsync("score.txt");
+                await score.DeleteAsync();
+            }
+            catch
+            {
+
+            }
+            try
+            {
+                StorageFile examroom = await localFolder.GetFileAsync("examRoom.txt");
+                await examroom.DeleteAsync();
+            }
+            catch
+            {
+
+            }
             try
             {
                 AppFrame.BackStack.Clear();
@@ -340,6 +371,7 @@ namespace Fzuhelper
             {
 
             }
+            //SystemNavigationManager.GetForCurrentView().BackRequested -= SystemNavigationManager_BackRequested;            
             Frame.Navigate(typeof(MainPage));
         }
     }

@@ -14,11 +14,25 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
 
-        <c:PageHeader x:Name="pageHeader">
-            <c:PageHeader.HeaderContent>
-                <TextBlock x:Name="title" Style="{ThemeResource PageTitleTextBlockStyle}" Text="考场"/>
-            </c:PageHeader.HeaderContent>
-        </c:PageHeader>
+        <CommandBar x:Name="topbar" VerticalAlignment="Top" HorizontalContentAlignment="Stretch">
+            <AppBarButton Icon="Refresh" Label="刷新" Click="refreshExamRoom_Click"/>
+            <!--<AppBarSeparator/>
+            <AppBarToggleButton Icon="Sort" Label="Sort"/>
+            <CommandBar.SecondaryCommands>
+                <AppBarButton Label="Menu Item 1"/>
+                <AppBarButton Label="Menu Item 2"/>
+                <AppBarButton Label="Menu Item 3"/>
+            </CommandBar.SecondaryCommands> -->
+            <CommandBar.Content>
+                <c:PageHeader x:Name="pageHeader">
+                    <c:PageHeader.HeaderContent>
+                        <TextBlock x:Name="title" Style="{ThemeResource PageTitleTextBlockStyle}" Text="考场"/>
+                    </c:PageHeader.HeaderContent>
+                </c:PageHeader>
+            </CommandBar.Content>
+        </CommandBar>
+        
         <ListView x:Name="listView" Grid.Row="1" IsSwipeEnabled="True" ItemTemplate="{StaticResource ExamRoom}"></ListView>
+        <ProgressRing x:Name="refreshIndicator" Grid.Row="1" Width="80" Height="80"/>
     </Grid>
 </Page>

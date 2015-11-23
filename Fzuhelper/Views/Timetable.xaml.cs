@@ -71,7 +71,7 @@ namespace Fzuhelper.Views
                 if (initialAgain)
                 {
                     initialAgain = !initialAgain;
-                    await GetTimetable();
+                    await HttpRequest.GetTimetable();
                     IniList();
                 }
                 else
@@ -82,9 +82,8 @@ namespace Fzuhelper.Views
             }
         }
 
-        private async Task<string> GetTimetable()
+        /*private async Task<string> GetTimetable()
         {
-            refreshIndicator.IsActive = true;
             //Get token
             try
             {
@@ -121,9 +120,8 @@ namespace Fzuhelper.Views
                 }
                 return "";
             }
-            refreshIndicator.IsActive = false;
             return "";
-        }
+        }*/
 
         private void ShowOneWeekCourse(int week)
         {
@@ -202,6 +200,7 @@ namespace Fzuhelper.Views
                     //Create button
                     Button singleCourse = new Button() {  Margin=new Thickness(2) , Padding=new Thickness(2) , HorizontalAlignment=HorizontalAlignment.Stretch , VerticalAlignment=VerticalAlignment.Stretch };
                     singleCourse.Content = stackPanel;
+                    singleCourse.Flyout = AddCourseFlyout(stackPanel);
                     singleCourse.Click += SingleCourse_Click;
                     Grid.SetColumn(singleCourse, i);
                     Grid.SetRow(singleCourse, jie);
@@ -234,6 +233,100 @@ namespace Fzuhelper.Views
             //Display current day
             int currentDayIndex = weekToInt.w2i[DateTime.Now.DayOfWeek.ToString()];
             singleDayCourseView.SelectedItem = singleDayCourseView.Items.ElementAt(currentDayIndex);
+            //Check empty
+            foreach(List<SingleDayCourseArr> item in singleDayCourseList)
+            {
+                if (item.Count == 0)
+                {
+                    TextBlock tb = new TextBlock() { Text = "没课啦", FontSize = 24, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+                    ListViewItem lvi = new ListViewItem();
+                    lvi.Content = tb;
+                    switch (singleDayCourseList.IndexOf(item))
+                    {
+                        case 0:
+                            MonCourse.ItemsSource = null;
+                            MonCourse.Items.Clear();
+                            MonCourse.Items.Add(lvi);
+                            break;
+                        case 1:
+                            TueCourse.ItemsSource = null;
+                            TueCourse.Items.Clear();
+                            TueCourse.Items.Add(lvi);
+                            break;
+                        case 2:
+                            WedCourse.ItemsSource = null;
+                            WedCourse.Items.Clear();
+                            WedCourse.Items.Add(lvi);
+                            break;
+                        case 3:
+                            ThuCourse.ItemsSource = null;
+                            ThuCourse.Items.Clear();
+                            ThuCourse.Items.Add(lvi);
+                            break;
+                        case 4:
+                            FriCourse.ItemsSource = null;
+                            FriCourse.Items.Clear();
+                            FriCourse.Items.Add(lvi);
+                            break;
+                        case 5:
+                            SatCourse.ItemsSource = null;
+                            SatCourse.Items.Clear();
+                            SatCourse.Items.Add(lvi);
+                            break;
+                        case 6:
+                            SunCourse.ItemsSource = null;
+                            SunCourse.Items.Clear();
+                            SunCourse.Items.Add(lvi);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+
+        private Flyout AddCourseFlyout(StackPanel sp)
+        {
+            TextBlock t1 = (TextBlock)sp.Children.ElementAt(0);//courseName
+            TextBlock t2 = (TextBlock)sp.Children.ElementAt(1);//place
+            TextBlock t3 = (TextBlock)sp.Children.ElementAt(2);//teacherName
+            TextBlock t4 = (TextBlock)sp.Children.ElementAt(3);//betweenWeek
+            TextBlock t5 = (TextBlock)sp.Children.ElementAt(4);//jie
+            //Create main stackpanel
+            StackPanel spMain = new StackPanel() { Padding = new Thickness(5), Margin = new Thickness(10), HorizontalAlignment = HorizontalAlignment.Stretch, Orientation = Orientation.Horizontal };
+            //Create left and right stackpanel
+            StackPanel spLeft = new StackPanel() { Margin = new Thickness(0,0,20,0), HorizontalAlignment = HorizontalAlignment.Stretch, Orientation = Orientation.Vertical };
+            StackPanel spRight = new StackPanel() { HorizontalAlignment = HorizontalAlignment.Stretch, Orientation = Orientation.Vertical };
+            //Create new textblocks
+            //indicators
+            TextBlock tbi1 = new TextBlock() { Text = "课程", Margin = new Thickness(0, 5, 0, 5) };
+            TextBlock tbi2 = new TextBlock() { Text = "教室", Margin = new Thickness(0, 5, 0, 5) };
+            TextBlock tbi3 = new TextBlock() { Text = "老师", Margin = new Thickness(0, 5, 0, 5) };
+            TextBlock tbi4 = new TextBlock() { Text = "周数", Margin = new Thickness(0, 5, 0, 5) };
+            TextBlock tbi5 = new TextBlock() { Text = "节数", Margin = new Thickness(0, 5, 0, 5) };
+            //values
+            TextBlock tb1 = new TextBlock() { Text = t1.Text, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 5, 0, 5) };
+            TextBlock tb2 = new TextBlock() { Text = t2.Text, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 5, 0, 5) };
+            TextBlock tb3 = new TextBlock() { Text = t3.Text, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 5, 0, 5) };
+            TextBlock tb4 = new TextBlock() { Text = t4.Text, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 5, 0, 5) };
+            TextBlock tb5 = new TextBlock() { Text = t5.Text, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 5, 0, 5) };
+            //Add textblocks to stackpanels
+            spLeft.Children.Add(tbi1);
+            spLeft.Children.Add(tbi2);
+            spLeft.Children.Add(tbi3);
+            spLeft.Children.Add(tbi4);
+            spLeft.Children.Add(tbi5);
+            spRight.Children.Add(tb1);
+            spRight.Children.Add(tb2);
+            spRight.Children.Add(tb3);
+            spRight.Children.Add(tb4);
+            spRight.Children.Add(tb5);
+            spMain.Children.Add(spLeft);
+            spMain.Children.Add(spRight);
+            Flyout flyout = new Flyout();
+            flyout.Content = spMain;
+            //FlyoutBase.SetAttachedFlyout(sp, flyout);
+            return flyout;
         }
 
         private void selectedWeekBtn_Click(object sender, RoutedEventArgs e)
@@ -258,7 +351,9 @@ namespace Fzuhelper.Views
 
         private async void refreshTimetable_Click(object sender, RoutedEventArgs e)
         {
-            await GetTimetable();
+            refreshIndicator.IsActive = true;
+            await HttpRequest.GetTimetable();
+            refreshIndicator.IsActive = false;
             IniList();
         }
 

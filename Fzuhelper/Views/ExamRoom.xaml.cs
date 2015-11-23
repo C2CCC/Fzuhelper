@@ -61,7 +61,7 @@ namespace Fzuhelper.Views
                 if (initialAgain)
                 {
                     initialAgain = !initialAgain;
-                    await GetExamRoom();
+                    jsonData = await HttpRequest.GetExamRoom();
                     IniList();
                 }
                 else
@@ -72,7 +72,7 @@ namespace Fzuhelper.Views
             }
         }
 
-        private async Task<string> GetExamRoom()
+        /*private async Task<string> GetExamRoom()
         {
             //Get token
             try
@@ -111,7 +111,7 @@ namespace Fzuhelper.Views
                 }
                 return "";
             }
-        }
+        }*/
 
         private class ExamRoomReturnValue
         {
@@ -120,6 +120,14 @@ namespace Fzuhelper.Views
             public string errMsg { get; set; }
 
             public PropertySet data { get; set; }
+        }
+
+        private async void refreshExamRoom_Click(object sender, RoutedEventArgs e)
+        {
+            refreshIndicator.IsActive = true;
+            await HttpRequest.GetExamRoom();
+            refreshIndicator.IsActive = false;
+            IniList();
         }
 
         private class ExamRoomArr

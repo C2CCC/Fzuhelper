@@ -28,7 +28,7 @@
                 <TextBlock x:Name="selectedWeek" HorizontalAlignment="Center"/>
             </AppBarButton>
             <AppBarToggleButton Icon="Page" Label="单日视图" Click="SingleDayCourseToggle_Click"/>
-            <AppBarButton x:Name="refreshTimetable" Icon="Refresh" Label="刷新" Click="refreshTimetable_Click"/>
+            <AppBarButton Icon="Refresh" Label="刷新" Click="refreshTimetable_Click"/>
             <!--<AppBarSeparator/>
             <AppBarToggleButton Icon="Sort" Label="Sort"/>-->
             <CommandBar.SecondaryCommands>

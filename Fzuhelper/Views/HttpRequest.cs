@@ -56,13 +56,27 @@ namespace Fzuhelper.Views
                 }
                 httpResponse.EnsureSuccessStatusCode();
                 httpResponseBody = await httpResponse.Content.ReadAsStringAsync();
+                //Check if the return data is correct
+                try
+                {
+                    CheckJwch c = JsonConvert.DeserializeObject<CheckJwch>(httpResponseBody);
+                    if(c.errMsg== "未登陆")
+                    {
+                        await ReLogin();
+                        return "relogin";
+                    }
+                    return httpResponseBody;
+                }
+                catch
+                {
+                    return "error";
+                }
             }
             catch
             {
                 MainPage.SendToast("网络错误");
                 return "error";
             }
-            return httpResponseBody;
         }
 
         public static async Task ReLogin()
@@ -102,12 +116,155 @@ namespace Fzuhelper.Views
             }
         }
 
-        private class LogInReturnValue
+        #region get from jwch,get region
+
+        //get exam room
+        public static async Task<string> GetExamRoom()
+        {
+            string jsonData = "";
+            //Get token
+            try
+            {
+                //from storage
+                StorageFile usrInfo = await localFolder.GetFileAsync("usrInfo.txt");
+                string token = (await FileIO.ReadTextAsync(usrInfo)).Split('\n')[1];
+                //Get data
+                HttpFormUrlEncodedContent content = new HttpFormUrlEncodedContent(new[] { new KeyValuePair<string, string>("token", token) });
+                jsonData = await HttpRequest.GetFromJwch("get", "getExamRoom", content);
+                if (jsonData == "relogin")
+                {
+                    jsonData = await HttpRequest.GetFromJwch("get", "getExamRoom", content);
+                }
+                //System.Diagnostics.Debug.WriteLine(examArr.ElementAt<Dictionary<string,string>>(0)["courseName"]);
+                try
+                {
+                    //Save as file
+                    StorageFile examRoom = await localFolder.CreateFileAsync("examRoom.txt", CreationCollisionOption.ReplaceExisting);
+                    await FileIO.WriteTextAsync(examRoom, jsonData);
+                }
+                catch
+                {
+
+                }
+                //getAgain = true;
+                return jsonData;
+            }
+            catch
+            {
+                /*if (getAgain)
+                {
+                    //getAgain = !getAgain;
+                    await ReLogin();
+                    await GetExamRoom();
+                }
+                else
+                {
+                    MainPage.SendToast("网络错误");
+                }*/
+                return "";
+            }
+        }
+
+        //get score
+        public static async Task<string> GetScore()
+        {
+            string jsonData = "";
+            //Get token
+            try
+            {
+                //from storage
+                StorageFile usrInfo = await localFolder.GetFileAsync("usrInfo.txt");
+                string token = (await FileIO.ReadTextAsync(usrInfo)).Split('\n')[1];
+                //Get data
+                HttpFormUrlEncodedContent content = new HttpFormUrlEncodedContent(new[] { new KeyValuePair<string, string>("token", token) });
+                jsonData = await HttpRequest.GetFromJwch("get", "getScore", content);
+                //System.Diagnostics.Debug.WriteLine(examArr.ElementAt<Dictionary<string,string>>(0)["courseName"]);
+                try
+                {
+                    //Save as file
+                    StorageFile score = await localFolder.CreateFileAsync("score.txt", CreationCollisionOption.ReplaceExisting);
+                    await FileIO.WriteTextAsync(score, jsonData);
+                }
+                catch
+                {
+
+                }
+                //getAgain = true;
+                return jsonData;
+            }
+            catch
+            {
+                /*if (getAgain)
+                {
+                    getAgain = !getAgain;
+                    await HttpRequest.ReLogin();
+                    await GetScore();
+                }
+                else
+                {
+                    MainPage.SendToast("网络错误");
+                }*/
+                return "";
+            }
+        }
+
+        //get timetable
+        public static async Task<string> GetTimetable()
+        {
+            string jsonData = "";
+            //Get token
+            try
+            {
+                //from storage
+                StorageFile accInfo = await localFolder.GetFileAsync("accInfo.txt");
+                string stunum = (await FileIO.ReadTextAsync(accInfo)).Split('\n')[0];
+                //Get data
+                HttpFormUrlEncodedContent content = new HttpFormUrlEncodedContent(new[] { new KeyValuePair<string, string>("stunum", stunum) });
+                jsonData = await HttpRequest.GetFromJwch("get", "getTimetable", content);
+                //System.Diagnostics.Debug.WriteLine(examArr.ElementAt<Dictionary<string,string>>(0)["courseName"]);
+                try
+                {
+                    //Save as file
+                    StorageFile timetable = await localFolder.CreateFileAsync("timetable.txt", CreationCollisionOption.ReplaceExisting);
+                    await FileIO.WriteTextAsync(timetable, jsonData);
+                }
+                catch
+                {
+
+                }
+                //getAgain = true;
+                return jsonData;
+            }
+            catch
+            {
+                /*if (getAgain)
+                {
+                    getAgain = !getAgain;
+                    await HttpRequest.ReLogin();
+                    await GetTimetable();
+                }
+                else
+                {
+                    MainPage.SendToast("网络错误");
+                }*/
+                return "";
+            }
+        }
+
+        #endregion
+
+
+
+
+        private class CheckJwch
         {
             public bool status { get; set; }
 
             public string errMsg { get; set; }
+        }
 
+        private class LogInReturnValue : CheckJwch
+        {
             public Dictionary<string, string> data { get; set; }
         }
 

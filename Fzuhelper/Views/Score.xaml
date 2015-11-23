@@ -21,11 +21,33 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
 
-        <c:PageHeader x:Name="pageHeader">
-            <c:PageHeader.HeaderContent>
-                <TextBlock x:Name="title" Style="{ThemeResource PageTitleTextBlockStyle}" Text="成绩"/>
-            </c:PageHeader.HeaderContent>
-        </c:PageHeader>
+        <CommandBar x:Name="topbar" VerticalAlignment="Top" HorizontalContentAlignment="Stretch">
+            <AppBarButton x:Name="gradePoint" Icon="Tag" Label="绩点">
+                <AppBarButton.Flyout>
+                    <Flyout>
+                        <StackPanel>
+                            <TextBlock Text="这是绩点"/>
+                        </StackPanel>
+                    </Flyout>
+                </AppBarButton.Flyout>
+            </AppBarButton>
+            <AppBarButton Icon="Refresh" Label="刷新" Click="refreshScore_Click"/>
+            <!--<AppBarSeparator/>
+            <AppBarToggleButton Icon="Sort" Label="Sort"/>
+            <CommandBar.SecondaryCommands>
+                <AppBarButton Label="Menu Item 1"/>
+                <AppBarButton Label="Menu Item 2"/>
+                <AppBarButton Label="Menu Item 3"/>
+            </CommandBar.SecondaryCommands> -->
+            <CommandBar.Content>
+                <c:PageHeader x:Name="pageHeader">
+                    <c:PageHeader.HeaderContent>
+                        <TextBlock x:Name="title" Style="{ThemeResource PageTitleTextBlockStyle}" Text="成绩"/>
+                    </c:PageHeader.HeaderContent>
+                </c:PageHeader>
+            </CommandBar.Content>
+        </CommandBar>
+        
         <SemanticZoom Grid.Row="1">
             <SemanticZoom.ZoomedInView>
                 <ListView x:Name="listViewZoomInView" ItemsSource="{Binding Source={StaticResource cvsGroups}}" ItemTemplate="{StaticResource Score}">
@@ -55,5 +77,6 @@
                 <ListView x:Name="listViewZoomOutView" SelectionMode="None" HorizontalAlignment="Center" VerticalAlignment="Center" ItemTemplate="{StaticResource ZoomOutViewHeader}"></ListView>
             </SemanticZoom.ZoomedOutView>
         </SemanticZoom>
+        <ProgressRing x:Name="refreshIndicator" Grid.Row="1" Width="80" Height="80"/>
     </Grid>
 </Page>

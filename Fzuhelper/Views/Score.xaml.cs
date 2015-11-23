@@ -67,7 +67,7 @@ namespace Fzuhelper.Views
                 if (initialAgain)
                 {
                     initialAgain = !initialAgain;
-                    await GetScore();
+                    await HttpRequest.GetScore();
                     IniList();
                 }
                 else
@@ -78,7 +78,7 @@ namespace Fzuhelper.Views
             }
         }
 
-        private async Task<string> GetScore()
+        /*private async Task<string> GetScore()
         {
             //Get token
             try
@@ -117,7 +117,7 @@ namespace Fzuhelper.Views
                 }
                 return "";
             }
-        }
+        }*/
 
         private class ScoreReturnValue
         {
@@ -161,6 +161,14 @@ namespace Fzuhelper.Views
             {
                 this.Items = new ObservableCollection<ScoreArr>();
             }
+        }
+
+        private async void refreshScore_Click(object sender, RoutedEventArgs e)
+        {
+            refreshIndicator.IsActive = true;
+            await HttpRequest.GetScore();
+            refreshIndicator.IsActive = false;
+            IniList();
         }
 
         private static ObservableCollection<Group> CreateGroups()

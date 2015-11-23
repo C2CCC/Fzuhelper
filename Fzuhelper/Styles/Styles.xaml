@@ -200,4 +200,30 @@
     </DataTemplate>
     <!--SingleDayCourseTemplate end-->
 
+    <!--LibraryTemplate-->
+    <DataTemplate x:Key="BookSearchResultTemplate">
+        <Border BorderBrush="#F1F1F1" BorderThickness="0 1 0 1">
+            <StackPanel Orientation="Vertical" Padding="5 10 5 10">
+                <TextBlock Text="{Binding Path=name}" TextWrapping="Wrap" FontSize="18" FontWeight="Bold" Margin="0 0 0 10"/>
+                <StackPanel Orientation="Horizontal" Margin="0 0 0 5">
+                    <TextBlock Text="作者" Margin="0 0 30 0"/>
+                    <TextBlock Text="{Binding Path=author}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0 0 0 5">
+                    <TextBlock Text="出版社" Margin="0 0 30 0"/>
+                    <TextBlock Text="{Binding Path=publisher}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0 0 0 5">
+                    <TextBlock Text="索书号" Margin="0 0 30 0"/>
+                    <TextBlock Text="{Binding Path=place}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0 0 0 5">
+                    <TextBlock Text="{Binding Path=amount}"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </DataTemplate>
+    <!--LibraryTemplate end-->
+
+
 </ResourceDictionary>

@@ -28,7 +28,7 @@ namespace Fzuhelper.Views
     {
         private StorageFolder localFolder = ApplicationData.Current.LocalFolder;
 
-        private static bool getAgain = true, initialAgain = true;
+        private static bool initialAgain = true;
 
         private string jsonData;
 

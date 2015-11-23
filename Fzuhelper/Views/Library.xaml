@@ -10,7 +10,8 @@
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
 
@@ -19,5 +20,21 @@
                 <TextBlock x:Name="title" Style="{ThemeResource PageTitleTextBlockStyle}" Text="图书馆"/>
             </c:PageHeader.HeaderContent>
         </c:PageHeader>
+
+        <StackPanel Grid.Row="1" Orientation="Vertical" Margin="5 10 5 10" Padding="10">
+            <TextBox x:Name="bookName" PlaceholderText="书名" Margin="0 0 0 20"/>
+            <Button x:Name="bookSearch" Content="检索" HorizontalAlignment="Stretch" Background="{ThemeResource ButtonBackgroundThemeBrush}" Click="bookSearch_Click"/>
+        </StackPanel>
+
+        <ScrollViewer x:Name="scrollViewer" Grid.Row="2">
+            <ListView x:Name="bookSearchResult" ItemTemplate="{StaticResource BookSearchResultTemplate}">
+                <ListView.Footer>
+                    <Button x:Name="loadMore" Margin="0 10 0 10" Visibility="Collapsed" HorizontalAlignment="Stretch" Background="Transparent" BorderThickness="0" Click="loadMore_Click"/>
+                </ListView.Footer>
+            </ListView>
+        </ScrollViewer>
+        
+        <ProgressRing x:Name="refreshIndicator" Grid.Row="2" Width="80" Height="80"/>
+
     </Grid>
 </Page>

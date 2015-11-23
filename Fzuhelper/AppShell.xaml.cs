@@ -58,6 +58,18 @@ namespace Fzuhelper
                     Label = "图书馆",
                     DestPage = typeof(Library)
                 },
+                new NavMenuItem()
+                {
+                    Symbol = Symbol.Volume,
+                    Label = "教务处通知",
+                    DestPage = typeof(JwchNotice)
+                },
+                new NavMenuItem()
+                {
+                    Symbol = Symbol.Account,
+                    Label = "关于",
+                    DestPage = typeof(About)
+                },
             });
 
         public static AppShell Current = null;

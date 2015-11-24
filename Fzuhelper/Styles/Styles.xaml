@@ -225,5 +225,9 @@
     </DataTemplate>
     <!--LibraryTemplate end-->
 
+    <!--JwchNoticeTemplate-->
+    
+    <!--JwchNoticeTemplate end-->
+
 
 </ResourceDictionary>

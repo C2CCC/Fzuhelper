@@ -50,6 +50,7 @@ namespace Fzuhelper.Views
         {
             try
             {
+                refreshIndicator.IsActive = true;
                 //Get data from storage
                 StorageFile score = await localFolder.GetFileAsync("score.txt");
                 jsonData = await FileIO.ReadTextAsync(score);
@@ -61,9 +62,11 @@ namespace Fzuhelper.Views
                 cvsGroups.Source = Groups;
                 listViewZoomOutView.ItemsSource = cvsGroups.View.CollectionGroups;
                 initialAgain = true;
+                refreshIndicator.IsActive = false;
             }
             catch
             {
+                refreshIndicator.IsActive = false;
                 if (initialAgain)
                 {
                     initialAgain = !initialAgain;

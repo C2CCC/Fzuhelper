@@ -47,6 +47,7 @@ namespace Fzuhelper.Views
         {
             try
             {
+                refreshIndicator.IsActive = true;
                 //Get data from storage
                 StorageFile examRoom = await localFolder.GetFileAsync("examRoom.txt");
                 jsonData = await FileIO.ReadTextAsync(examRoom);
@@ -55,9 +56,11 @@ namespace Fzuhelper.Views
                 examArr = JsonConvert.DeserializeObject<List<ExamRoomArr>>(errv.data["examArr"].ToString());
                 listView.ItemsSource = examArr;
                 initialAgain = true;
+                refreshIndicator.IsActive = false;
             }
             catch
             {
+                refreshIndicator.IsActive = false;
                 if (initialAgain)
                 {
                     initialAgain = !initialAgain;

@@ -17,6 +17,7 @@ namespace Fzuhelper.Views
             getScore = "http://219.229.132.35/api/api.php/Jwch/getMark.html",
             getExamRoom = "http://219.229.132.35/api/api.php/Jwch/examRooms.html",
             getBookSearchResult = "http://219.229.132.35/api/api.php/FzuHelper/bookSearch.html",
+            getJwchNotice = "http://219.229.132.35/api/api.php/FzuHelper/jwcInfo.html",
             Login = "http://219.229.132.35/api/api.php/Jwch/login.html";
 
         public static async Task<string> GetFromJwch(string method,string purpose,HttpFormUrlEncodedContent content)
@@ -39,6 +40,9 @@ namespace Fzuhelper.Views
                     break;
                 case "getBookSearchResult":
                     uri = getBookSearchResult;
+                    break;
+                case "getJwchNotice":
+                    uri = getJwchNotice;
                     break;
                 default:
                     uri = "";
@@ -264,6 +268,23 @@ namespace Fzuhelper.Views
                 //Get data
                 HttpFormUrlEncodedContent content = new HttpFormUrlEncodedContent(new[] { new KeyValuePair<string, string>("key", key), new KeyValuePair<string, string>("page", page) });
                 jsonData = await HttpRequest.GetFromJwch("get", "getBookSearchResult", content);
+                return jsonData;
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
+        //get jwch notice
+        public static async Task<string> GetJwchNotice(string page)
+        {
+            string jsonData = "";
+            try
+            {
+                //Get data
+                HttpFormUrlEncodedContent content = new HttpFormUrlEncodedContent(new[] { new KeyValuePair<string, string>("page", page) });
+                jsonData = await HttpRequest.GetFromJwch("get", "getJwchNotice", content);
                 return jsonData;
             }
             catch

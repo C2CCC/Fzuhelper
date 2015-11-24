@@ -52,6 +52,7 @@ namespace Fzuhelper.Views
         {
             try
             {
+                refreshIndicator.IsActive = true;
                 //Get data from storage
                 StorageFile timetable = await localFolder.GetFileAsync("timetable.txt");
                 jsonData = await FileIO.ReadTextAsync(timetable);
@@ -65,9 +66,11 @@ namespace Fzuhelper.Views
                 ShowOneWeekCourse(0);
                 IniWeekOption();
                 initialAgain = true;
+                refreshIndicator.IsActive = false;
             }
             catch
             {
+                refreshIndicator.IsActive = false;
                 if (initialAgain)
                 {
                     initialAgain = !initialAgain;

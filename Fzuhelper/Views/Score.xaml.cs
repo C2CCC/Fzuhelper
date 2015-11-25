@@ -27,7 +27,7 @@ namespace Fzuhelper.Views
     /// </summary>
     public sealed partial class Score : Page
     {
-        private StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+        //private StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
 
         private static bool initialAgain = true;
 
@@ -35,7 +35,13 @@ namespace Fzuhelper.Views
 
         private ScoreReturnValue srv;
 
+        private GradePointReturnValue gprv;
+
         private static List<ScoreArr> markArr;
+
+        private static List<GradePointArr> gradePointArr = new List<GradePointArr>();
+
+        public static List<string> countTime = new List<string>();
 
         private ObservableCollection<Group> Groups;
 
@@ -43,16 +49,18 @@ namespace Fzuhelper.Views
         {
             this.InitializeComponent();
 
-            IniList();
+            IniList(false);
         }
 
-        private async void IniList()
+        private async void IniList(bool IsRefresh)
         {
+            bool ir = IsRefresh ? true : false;
             try
             {
                 refreshIndicator.IsActive = true;
                 //Get data from storage
-                StorageFile score = await localFolder.GetFileAsync("score.txt");
+                StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
+                StorageFile score = await fzuhelperDataFolder.GetFileAsync("score.dat");
                 jsonData = await FileIO.ReadTextAsync(score);
                 //System.Diagnostics.Debug.WriteLine(jsonData);
                 srv = JsonConvert.DeserializeObject<ScoreReturnValue>(jsonData);
@@ -61,6 +69,7 @@ namespace Fzuhelper.Views
                 Groups = CreateGroups();
                 cvsGroups.Source = Groups;
                 listViewZoomOutView.ItemsSource = cvsGroups.View.CollectionGroups;
+                GetAllGradePoint(IsRefresh);
                 initialAgain = true;
                 refreshIndicator.IsActive = false;
             }
@@ -69,58 +78,69 @@ namespace Fzuhelper.Views
                 refreshIndicator.IsActive = false;
                 if (initialAgain)
                 {
+                    refreshIndicator.IsActive = true;
                     initialAgain = !initialAgain;
                     await HttpRequest.GetScore();
-                    IniList();
+                    IniList(ir);
                 }
                 else
                 {
-                    MainPage.SendToast("无法获取列表");
+                    //MainPage.SendToast("无法获取列表");
                 }
                 return;
             }
         }
 
-        /*private async Task<string> GetScore()
+        private async void GetAllGradePoint(bool IsRefresh)
         {
-            //Get token
-            try
+            gradePointListView.ItemsSource = null;
+            gradePointArr.Clear();
+            string year = "", term = "";
+            foreach (string item in countTime)
             {
-                //from storage
-                StorageFile usrInfo = await localFolder.GetFileAsync("usrInfo.txt");
-                string token = (await FileIO.ReadTextAsync(usrInfo)).Split('\n')[1];
-                //Get data
-                HttpFormUrlEncodedContent content = new HttpFormUrlEncodedContent(new[] { new KeyValuePair<string, string>("token", token) });
-                jsonData = await HttpRequest.GetFromJwch("get", "getScore", content);
-                //System.Diagnostics.Debug.WriteLine(examArr.ElementAt<Dictionary<string,string>>(0)["courseName"]);
+                year = item.Substring(0, 4);
+                term = item.Substring(4);
+                if (IsRefresh)
+                {
+                    try
+                    {
+                        jsonData = await HttpRequest.GetGradePoint(year, term);
+                    }
+                    catch
+                    {
+                        return;
+                    }
+                }
+                else
+                {
+                    try
+                    {
+                        //from storage
+                        StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
+                        StorageFile gradePointFile = await fzuhelperDataFolder.GetFileAsync(year + term + ".dat");
+                        jsonData = await FileIO.ReadTextAsync(gradePointFile);
+                    }
+                    catch
+                    {
+                        jsonData = await HttpRequest.GetGradePoint(year, term);
+                    }
+                }
                 try
                 {
-                    //Save as file
-                    StorageFile score = await localFolder.CreateFileAsync("score.txt", CreationCollisionOption.ReplaceExisting);
-                    await FileIO.WriteTextAsync(score, jsonData);
+                    gprv = JsonConvert.DeserializeObject<GradePointReturnValue>(jsonData);
+                    GradePointArr gpArr = new GradePointArr();
+                    gpArr.term = item;
+                    gpArr.point = gprv.data["point"];
+                    gpArr.rank_total = gprv.data["rank"] + "/" + gprv.data["totalStudents"];
+                    gradePointArr.Add(gpArr);
                 }
                 catch
                 {
 
                 }
-                getAgain = true;
-                return "";
             }
-            catch
-            {
-                if (getAgain)
-                {
-                    getAgain = !getAgain;
-                    await HttpRequest.ReLogin();
-                    await GetScore();
-                }
-                else
-                {
-                    MainPage.SendToast("网络错误");
-                }
-                return "";
-            }
-        }*/
+            gradePointListView.ItemsSource = gradePointArr;
+        }
 
         private class ScoreReturnValue
         {
@@ -149,6 +169,25 @@ namespace Fzuhelper.Views
 
             public string minorType { get; set; }
         }
+
+        private class GradePointReturnValue
+        {
+            public bool status { get; set; }
+
+            public Dictionary<string,string> data { get; set; }
+        }
+
+        private class GradePointArr
+        {
+            public string term { get; set; }
+
+            //public string name { get; set; }
+
+            public string point { get; set; }
+
+            public string rank_total { get; set; }
+        }
+
         //Define Group
         private class Group
         {
@@ -171,14 +210,14 @@ namespace Fzuhelper.Views
             refreshIndicator.IsActive = true;
             await HttpRequest.GetScore();
             refreshIndicator.IsActive = false;
-            IniList();
+            IniList(true);
         }
 
         private static ObservableCollection<Group> CreateGroups()
         {
             var groups = new ObservableCollection<Group>();
 
-            List<string> countTime = new List<string>();
+            countTime.Clear();
 
             var group = new Group();
 

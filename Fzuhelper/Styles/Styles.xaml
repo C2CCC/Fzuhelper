@@ -182,6 +182,19 @@
     <DataTemplate x:Key="ZoomOutViewHeader">
         <TextBlock Text="{Binding Path=Group.Name}" Style="{StaticResource SubtitleTextBlockStyle}" TextWrapping="Wrap"/>
     </DataTemplate>
+
+    <DataTemplate x:Key="GradePointTemplate">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="{Binding Path=term}" Grid.Column="0" Margin="0 0 20 0"/>
+            <TextBlock Text="{Binding Path=point}" Grid.Column="1" Margin="0 0 20 0"/>
+            <TextBlock Text="{Binding Path=rank_total}" Grid.Column="2" HorizontalAlignment="Right"/>
+        </Grid>
+    </DataTemplate>
     <!--Score end-->
     
     <!--SingleDayCourseTemplate-->

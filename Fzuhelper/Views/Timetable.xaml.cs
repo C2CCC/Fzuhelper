@@ -26,7 +26,7 @@ namespace Fzuhelper.Views
     /// </summary>
     public sealed partial class Timetable : Page
     {
-        private StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+        //private StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
 
         private static bool initialAgain = true;
 
@@ -54,7 +54,8 @@ namespace Fzuhelper.Views
             {
                 refreshIndicator.IsActive = true;
                 //Get data from storage
-                StorageFile timetable = await localFolder.GetFileAsync("timetable.txt");
+                StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
+                StorageFile timetable = await fzuhelperDataFolder.GetFileAsync("timetable.dat");
                 jsonData = await FileIO.ReadTextAsync(timetable);
                 //System.Diagnostics.Debug.WriteLine(jsonData);
                 ttrv = JsonConvert.DeserializeObject<TimetableReturnValue>(jsonData);
@@ -73,58 +74,18 @@ namespace Fzuhelper.Views
                 refreshIndicator.IsActive = false;
                 if (initialAgain)
                 {
+                    refreshIndicator.IsActive = true;
                     initialAgain = !initialAgain;
                     await HttpRequest.GetTimetable();
                     IniList();
                 }
                 else
                 {
-                    MainPage.SendToast("无法获取列表");
+                    //MainPage.SendToast("无法获取列表");
                 }
                 return;
             }
         }
-
-        /*private async Task<string> GetTimetable()
-        {
-            //Get token
-            try
-            {
-                //from storage
-                StorageFile accInfo = await localFolder.GetFileAsync("accInfo.txt");
-                string stunum = (await FileIO.ReadTextAsync(accInfo)).Split('\n')[0];
-                //Get data
-                HttpFormUrlEncodedContent content = new HttpFormUrlEncodedContent(new[] { new KeyValuePair<string, string>("stunum", stunum) });
-                jsonData = await HttpRequest.GetFromJwch("get", "getTimetable", content);
-                //System.Diagnostics.Debug.WriteLine(examArr.ElementAt<Dictionary<string,string>>(0)["courseName"]);
-                try
-                {
-                    //Save as file
-                    StorageFile timetable = await localFolder.CreateFileAsync("timetable.txt", CreationCollisionOption.ReplaceExisting);
-                    await FileIO.WriteTextAsync(timetable, jsonData);
-                }
-                catch
-                {
-
-                }
-                getAgain = true;
-            }
-            catch
-            {
-                if (getAgain)
-                {
-                    getAgain = !getAgain;
-                    await HttpRequest.ReLogin();
-                    await GetTimetable();
-                }
-                else
-                {
-                    MainPage.SendToast("网络错误");
-                }
-                return "";
-            }
-            return "";
-        }*/
 
         private void ShowOneWeekCourse(int week)
         {
@@ -442,7 +403,7 @@ namespace Fzuhelper.Views
                 w2i.Add("Monday", 0);
                 w2i.Add("Tuesday", 1);
                 w2i.Add("Wednesday", 2);
-                w2i.Add("Thusday", 3);
+                w2i.Add("Thursday", 3);
                 w2i.Add("Friday", 4);
                 w2i.Add("Saturday", 5);
                 w2i.Add("Sunday", 6);

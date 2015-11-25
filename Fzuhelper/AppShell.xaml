@@ -70,9 +70,9 @@
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <StackPanel x:Name="userInfoHeader" Grid.Row="0" Margin="20,48,0,0">
-                        <TextBlock x:Name="userName" Text="大帅比" FontSize="24" Margin="0 10 0 10"/>
-                        <TextBlock x:Name="termTime" Text="2015学年01学期" Margin="0 10 0 10"/>
+                    <StackPanel x:Name="userInfoHeader" Grid.Row="0" Margin="50,48,0,0">
+                        <TextBlock x:Name="userName" FontSize="24" Margin="0 10 0 10"/>
+                        <TextBlock x:Name="termTime" Margin="0 10 0 10"/>
                     </StackPanel>
                 <!-- A custom ListView to display the items in the pane.  The automation Name is set in the ContainerContentChanging event. -->
                 <controls:NavMenuListView x:Name="NavMenuList"

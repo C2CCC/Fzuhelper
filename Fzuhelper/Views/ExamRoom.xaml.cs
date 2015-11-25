@@ -26,7 +26,7 @@ namespace Fzuhelper.Views
     /// </summary>
     public sealed partial class ExamRoom : Page
     {
-        private StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+        //private StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
 
         private static bool initialAgain = true;
         
@@ -49,7 +49,8 @@ namespace Fzuhelper.Views
             {
                 refreshIndicator.IsActive = true;
                 //Get data from storage
-                StorageFile examRoom = await localFolder.GetFileAsync("examRoom.txt");
+                StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
+                StorageFile examRoom = await fzuhelperDataFolder.GetFileAsync("examRoom.dat");
                 jsonData = await FileIO.ReadTextAsync(examRoom);
                 errv = JsonConvert.DeserializeObject<ExamRoomReturnValue>(jsonData);
                 //System.Diagnostics.Debug.WriteLine(errv.data["stuname"]);
@@ -63,58 +64,18 @@ namespace Fzuhelper.Views
                 refreshIndicator.IsActive = false;
                 if (initialAgain)
                 {
+                    refreshIndicator.IsActive = true;
                     initialAgain = !initialAgain;
                     jsonData = await HttpRequest.GetExamRoom();
                     IniList();
                 }
                 else
                 {
-                    MainPage.SendToast("无法获取列表");
+                    //MainPage.SendToast("无法获取列表");
                 }
                 return;
             }
         }
-
-        /*private async Task<string> GetExamRoom()
-        {
-            //Get token
-            try
-            {
-                //from storage
-                StorageFile usrInfo = await localFolder.GetFileAsync("usrInfo.txt");
-                string token = (await FileIO.ReadTextAsync(usrInfo)).Split('\n')[1];
-                //Get data
-                HttpFormUrlEncodedContent content = new HttpFormUrlEncodedContent(new[] { new KeyValuePair<string, string>("token", token) });
-                jsonData = await HttpRequest.GetFromJwch("get", "getExamRoom", content);
-                //System.Diagnostics.Debug.WriteLine(examArr.ElementAt<Dictionary<string,string>>(0)["courseName"]);
-                try
-                {
-                    //Save as file
-                    StorageFile examRoom = await localFolder.CreateFileAsync("examRoom.txt", CreationCollisionOption.ReplaceExisting);
-                    await FileIO.WriteTextAsync(examRoom, jsonData);
-                }
-                catch
-                {
-
-                }
-                getAgain = true;
-                return "";
-            }
-            catch
-            {
-                if (getAgain)
-                {
-                    getAgain = !getAgain;
-                    await HttpRequest.ReLogin();
-                    await GetExamRoom();
-                }
-                else
-                {
-                    MainPage.SendToast("网络错误");
-                }
-                return "";
-            }
-        }*/
 
         private class ExamRoomReturnValue
         {

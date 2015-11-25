@@ -11,14 +11,17 @@ namespace Fzuhelper.Views
 {
     public class HttpRequest
     {
-        private static StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+        //private static StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
 
         private static string getTimetable = "http://219.229.132.35/api/api.php/Jwch/timeTable.html",
             getScore = "http://219.229.132.35/api/api.php/Jwch/getMark.html",
             getExamRoom = "http://219.229.132.35/api/api.php/Jwch/examRooms.html",
             getBookSearchResult = "http://219.229.132.35/api/api.php/FzuHelper/bookSearch.html",
             getJwchNotice = "http://219.229.132.35/api/api.php/FzuHelper/jwcInfo.html",
+            getGradePoint = "http://120.24.251.94/api/point.php",
             Login = "http://219.229.132.35/api/api.php/Jwch/login.html";
+
+        private static string gradePointToken = "55cafd5f6dd29baa6db9f9419d731964";
 
         public static async Task<string> GetFromJwch(string method,string purpose,HttpFormUrlEncodedContent content)
         {
@@ -44,6 +47,9 @@ namespace Fzuhelper.Views
                 case "getJwchNotice":
                     uri = getJwchNotice;
                     break;
+                case "getGradePoint":
+                    uri = getGradePoint;
+                    break;
                 default:
                     uri = "";
                     break;
@@ -68,7 +74,7 @@ namespace Fzuhelper.Views
                 try
                 {
                     CheckJwch c = JsonConvert.DeserializeObject<CheckJwch>(httpResponseBody);
-                    if(c.errMsg== "未登陆")
+                    if(c.errMsg!= "")
                     {
                         await ReLogin();
                         return "relogin";
@@ -92,7 +98,8 @@ namespace Fzuhelper.Views
             try
             {
                 //Get accInfo
-                StorageFile accInfo = await localFolder.GetFileAsync("accInfo.txt");
+                StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
+                StorageFile accInfo = await fzuhelperDataFolder.GetFileAsync("accInfo.dat");
                 String info = await FileIO.ReadTextAsync(accInfo);
                 string[] usr = info.Split('\n');
                 //Create HttpContent
@@ -114,7 +121,7 @@ namespace Fzuhelper.Views
                     return;
                 }
                 LogInReturnValue l = JsonConvert.DeserializeObject<LogInReturnValue>(response);
-                StorageFile usrInfo = await localFolder.CreateFileAsync("usrInfo.txt", CreationCollisionOption.ReplaceExisting);
+                StorageFile usrInfo = await fzuhelperDataFolder.CreateFileAsync("usrInfo.dat", CreationCollisionOption.ReplaceExisting);
                 await FileIO.WriteTextAsync(usrInfo, l.data["stuname"] + "\n" + l.data["token"]);
             }
             catch
@@ -134,7 +141,8 @@ namespace Fzuhelper.Views
             try
             {
                 //from storage
-                StorageFile usrInfo = await localFolder.GetFileAsync("usrInfo.txt");
+                StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
+                StorageFile usrInfo = await fzuhelperDataFolder.GetFileAsync("usrInfo.dat");
                 string token = (await FileIO.ReadTextAsync(usrInfo)).Split('\n')[1];
                 //Get data
                 HttpFormUrlEncodedContent content = new HttpFormUrlEncodedContent(new[] { new KeyValuePair<string, string>("token", token) });
@@ -147,7 +155,7 @@ namespace Fzuhelper.Views
                 try
                 {
                     //Save as file
-                    StorageFile examRoom = await localFolder.CreateFileAsync("examRoom.txt", CreationCollisionOption.ReplaceExisting);
+                    StorageFile examRoom = await fzuhelperDataFolder.CreateFileAsync("examRoom.dat", CreationCollisionOption.ReplaceExisting);
                     await FileIO.WriteTextAsync(examRoom, jsonData);
                 }
                 catch
@@ -181,7 +189,8 @@ namespace Fzuhelper.Views
             try
             {
                 //from storage
-                StorageFile usrInfo = await localFolder.GetFileAsync("usrInfo.txt");
+                StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
+                StorageFile usrInfo = await fzuhelperDataFolder.GetFileAsync("usrInfo.dat");
                 string token = (await FileIO.ReadTextAsync(usrInfo)).Split('\n')[1];
                 //Get data
                 HttpFormUrlEncodedContent content = new HttpFormUrlEncodedContent(new[] { new KeyValuePair<string, string>("token", token) });
@@ -190,7 +199,7 @@ namespace Fzuhelper.Views
                 try
                 {
                     //Save as file
-                    StorageFile score = await localFolder.CreateFileAsync("score.txt", CreationCollisionOption.ReplaceExisting);
+                    StorageFile score = await fzuhelperDataFolder.CreateFileAsync("score.dat", CreationCollisionOption.ReplaceExisting);
                     await FileIO.WriteTextAsync(score, jsonData);
                 }
                 catch
@@ -216,6 +225,39 @@ namespace Fzuhelper.Views
             }
         }
 
+        //get grade point(one term)
+        public static async Task<string> GetGradePoint(string year,string term)
+        {
+            string jsonData = "";
+            //Get token
+            try
+            {
+                //from storage
+                StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
+                StorageFile accInfo = await fzuhelperDataFolder.GetFileAsync("accInfo.dat");
+                string sn = (await FileIO.ReadTextAsync(accInfo)).Split('\n')[0];
+                //Get data
+                HttpFormUrlEncodedContent content = new HttpFormUrlEncodedContent(new[] { new KeyValuePair<string, string>("token", gradePointToken), new KeyValuePair<string, string>("year", year), new KeyValuePair<string, string>("term", term), new KeyValuePair<string, string>("sn", sn) });
+                jsonData = await HttpRequest.GetFromJwch("get", "getGradePoint", content);
+                //System.Diagnostics.Debug.WriteLine(examArr.ElementAt<Dictionary<string,string>>(0)["courseName"]);
+                try
+                {
+                    //Save as file
+                    StorageFile gradepoint = await fzuhelperDataFolder.CreateFileAsync(year+term+".dat", CreationCollisionOption.ReplaceExisting);
+                    await FileIO.WriteTextAsync(gradepoint, jsonData);
+                }
+                catch
+                {
+
+                }
+                return jsonData;
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
         //get timetable
         public static async Task<string> GetTimetable()
         {
@@ -224,7 +266,8 @@ namespace Fzuhelper.Views
             try
             {
                 //from storage
-                StorageFile accInfo = await localFolder.GetFileAsync("accInfo.txt");
+                StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
+                StorageFile accInfo = await fzuhelperDataFolder.GetFileAsync("accInfo.dat");
                 string stunum = (await FileIO.ReadTextAsync(accInfo)).Split('\n')[0];
                 //Get data
                 HttpFormUrlEncodedContent content = new HttpFormUrlEncodedContent(new[] { new KeyValuePair<string, string>("stunum", stunum) });
@@ -233,7 +276,7 @@ namespace Fzuhelper.Views
                 try
                 {
                     //Save as file
-                    StorageFile timetable = await localFolder.CreateFileAsync("timetable.txt", CreationCollisionOption.ReplaceExisting);
+                    StorageFile timetable = await fzuhelperDataFolder.CreateFileAsync("timetable.dat", CreationCollisionOption.ReplaceExisting);
                     await FileIO.WriteTextAsync(timetable, jsonData);
                 }
                 catch

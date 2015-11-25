@@ -18,6 +18,9 @@ using Windows.Storage;
 using Windows.UI.Notifications;
 using Windows.Data.Xml.Dom;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
+using System.Net;
+using System.Text.RegularExpressions;
 
 //“空白页”项模板在 http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409 上有介绍
 
@@ -28,7 +31,9 @@ namespace Fzuhelper
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        private StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+        //private StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+
+        //private StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
 
         private ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
 
@@ -38,23 +43,6 @@ namespace Fzuhelper
         {
             this.InitializeComponent();
         }
-        /*
-        public async void CheckIfLoged()
-        {
-            try
-            {
-                StorageFile accInfo = await localFolder.GetFileAsync("accInfo.txt");
-                String info = await FileIO.ReadTextAsync(accInfo);
-                Frame.Navigate(typeof(AppShell));
-                //string[] usr = info.Split('\n');
-                //LogInVerification(usr[0],usr[1]);
-            }
-            catch
-            {
-                return;
-            }
-            
-        }*/
 
         private void loginBtn_Click(object sender, RoutedEventArgs e)
         {
@@ -120,7 +108,8 @@ namespace Fzuhelper
                 passwd
             
             */
-            StorageFile accInfo = await localFolder.CreateFileAsync("accInfo.txt", CreationCollisionOption.ReplaceExisting);
+            StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
+            StorageFile accInfo = await fzuhelperDataFolder.CreateFileAsync("accInfo.dat", CreationCollisionOption.ReplaceExisting);
             await FileIO.WriteTextAsync(accInfo, stunum+"\n"+passwd);
 
             //Update login state
@@ -140,21 +129,99 @@ namespace Fzuhelper
                         stuname
                         token
                     */
-                    StorageFile usrInfo = await localFolder.CreateFileAsync("usrInfo.txt", CreationCollisionOption.ReplaceExisting);
+                    StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
+                    StorageFile usrInfo = await fzuhelperDataFolder.CreateFileAsync("usrInfo.dat", CreationCollisionOption.ReplaceExisting);
                     await FileIO.WriteTextAsync(usrInfo, l.data["stuname"] + "\n" + l.data["token"]);
                 }
                 catch
                 {
 
                 }
+                try
+                {
+                    //get term time
+                    string term = "";
+                    term = await TryGetTerm();
+                    localSettings.Values["term"] = term;
+                }
+                catch
+                {
+
+                }
+                localSettings.Values["stuname"] = l.data["stuname"];
                 Frame.Navigate(typeof(AppShell));
             }
             catch
             {
+                localSettings.Values["IsLogedIn"] = false;
                 SendToast("账号或密码错误");
                 toggleLoginState();
             }
         }
+
+            public async Task<string> TryGetTerm()
+            {
+                string term = "";
+                try
+                {
+                    term = await GetTermFromJwch();
+                    return term;
+                }
+                catch
+                {
+                    try
+                    {
+                        StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
+                        StorageFile termInfo = await fzuhelperDataFolder.GetFileAsync("termInfo.dat");
+                        term = await FileIO.ReadTextAsync(termInfo);
+                    }
+                    catch
+                    {
+
+                    }
+                    return term;
+                }
+            }
+
+            private async Task<string> GetTermFromJwch()
+            {
+                string strMsg = "";
+                string regexStr = @"\d{4}.{3}\d{2}.{3}";
+                //string regexStr = @"\d{4}\w{2}\d{2}\w{2}";
+                string term = "";
+                string url = "http://59.77.226.32/tt.asp";
+                try
+                {
+                    WebRequest request = WebRequest.Create(url);
+                    WebResponse response = request.GetResponseAsync().Result;
+                    StreamReader reader = new StreamReader(response.GetResponseStream());
+                    strMsg = reader.ReadToEnd();
+
+                    Match mt = Regex.Match(strMsg, regexStr);
+                    term = mt.Value;
+
+                    term = term.Substring(0, 4) + "学年" + term.Substring(7, 2) + "学期";
+
+                    reader.Dispose();
+                    response.Dispose();
+                    try
+                    {
+                        StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
+                        StorageFile termInfo = await fzuhelperDataFolder.CreateFileAsync("termInfo.dat", CreationCollisionOption.ReplaceExisting);
+                        await FileIO.WriteTextAsync(termInfo, term);
+                    }
+                    catch
+                    {
+
+                    }
+                    return term;
+                }
+                catch
+                {
+                    return "";
+                }
+            }
+
 
         public class LogInReturnValue
         {

@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
+using System.IO;
+using System.Text.RegularExpressions;
 using Windows.Foundation;
 using Windows.Foundation.Metadata;
 using Windows.UI.Xaml.Automation;
@@ -17,6 +20,8 @@ using Windows.UI.Xaml.Navigation;
 using Fzuhelper.Controls;
 using Fzuhelper.Views;
 using Windows.Storage;
+using System.Threading.Tasks;
+using System.Text;
 
 namespace Fzuhelper
 {
@@ -26,7 +31,7 @@ namespace Fzuhelper
     /// </summary>
     public sealed partial class AppShell : Page
     {
-        private StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+        //private StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
 
         private ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
 
@@ -117,6 +122,17 @@ namespace Fzuhelper
                 // suppressing the initial entrance animation.
                 this.AppFrame.Navigate(typeof(Timetable));
             }
+
+            try
+            {
+                userName.Text = localSettings.Values["stuname"].ToString();
+                termTime.Text = localSettings.Values["term"].ToString();
+            }
+            catch
+            {
+
+            }
+            
             
         }
 
@@ -348,9 +364,9 @@ namespace Fzuhelper
         private async void logOut_ItemClick(object sender, ItemClickEventArgs e)
         {
             localSettings.Values["IsLogedIn"] = false;
-            try
+            /*try
             {
-                StorageFile timetable = await localFolder.GetFileAsync("timetable.txt");
+                StorageFile timetable = await fzuhelperDataFolder.GetFileAsync("timetable.dat");
                 await timetable.DeleteAsync();
             }
             catch
@@ -359,7 +375,7 @@ namespace Fzuhelper
             }
             try
             {
-                StorageFile score = await localFolder.GetFileAsync("score.txt");
+                StorageFile score = await fzuhelperDataFolder.GetFileAsync("score.dat");
                 await score.DeleteAsync();
             }
             catch
@@ -368,8 +384,17 @@ namespace Fzuhelper
             }
             try
             {
-                StorageFile examroom = await localFolder.GetFileAsync("examRoom.txt");
+                StorageFile examroom = await fzuhelperDataFolder.GetFileAsync("examRoom.dat");
                 await examroom.DeleteAsync();
+            }
+            catch
+            {
+
+            }*/
+            try
+            {
+                StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
+                await fzuhelperDataFolder.DeleteAsync();
             }
             catch
             {

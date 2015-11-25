@@ -25,9 +25,20 @@
             <AppBarButton x:Name="gradePoint" Icon="Tag" Label="绩点">
                 <AppBarButton.Flyout>
                     <Flyout>
-                        <StackPanel>
-                            <TextBlock Text="这是绩点"/>
-                        </StackPanel>
+                        <ListView x:Name="gradePointListView" IsSwipeEnabled="True" ItemTemplate="{StaticResource GradePointTemplate}">
+                            <ListView.Header>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="学期" Grid.Column="0" HorizontalAlignment="Center" Margin="0 0 20 0"/>
+                                    <TextBlock Text="绩点" Grid.Column="1" HorizontalAlignment="Center" Margin="0 0 20 0"/>
+                                    <TextBlock Text="排名" Grid.Column="2" HorizontalAlignment="Center"/>
+                                </Grid>
+                            </ListView.Header>
+                        </ListView>
                     </Flyout>
                 </AppBarButton.Flyout>
             </AppBarButton>

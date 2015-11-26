@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
+using Windows.ApplicationModel.Background;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Storage;
@@ -107,6 +108,39 @@ namespace Fzuhelper
             }
             // 确保当前窗口处于活动状态
             Window.Current.Activate();
+
+            //后台任务注册
+            var taskRegistered = false;
+            var exampleTaskName = "BackgroundRefresh";
+
+            foreach (var task in BackgroundTaskRegistration.AllTasks)
+            {
+                if (task.Value.Name == exampleTaskName)
+                {
+                    taskRegistered = true;
+                    break;
+                }
+            }
+
+
+            if (!taskRegistered)
+            {
+                try
+                {
+                    var builder = new BackgroundTaskBuilder();
+                    builder.Name = exampleTaskName;
+                    builder.TaskEntryPoint = "Fzuhelper.BackgroundRefresh";
+                    builder.SetTrigger(new TimeTrigger(1440, false));
+                    builder.AddCondition(new SystemCondition(SystemConditionType.InternetAvailable));
+                    BackgroundTaskRegistration task = builder.Register();
+                }
+                catch
+                {
+
+                }
+            }
+
+
         }
 
         /// <summary>

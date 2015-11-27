@@ -45,19 +45,19 @@
             </CommandBar.Content>
         </CommandBar>
 
-        
+
         <ScrollViewer x:Name="timeTableView" Grid.Row="1" Visibility="Visible" HorizontalScrollMode="Disabled" VerticalScrollMode="Enabled" VerticalScrollBarVisibility="Hidden">
             <Grid x:Name="timeTableMain">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="70"/>
@@ -73,28 +73,28 @@
                     <RowDefinition Height="70"/>
                 </Grid.RowDefinitions>
                 <!--Define the first row-->
-            <TextBlock Text="周一" Grid.Row="0" Grid.Column="1"/>
-            <TextBlock Text="周二" Grid.Row="0" Grid.Column="2"/>
-            <TextBlock Text="周三" Grid.Row="0" Grid.Column="3"/>
-            <TextBlock Text="周四" Grid.Row="0" Grid.Column="4"/>
-            <TextBlock Text="周五" Grid.Row="0" Grid.Column="5"/>
-            <TextBlock Text="周六" Grid.Row="0" Grid.Column="6"/>
-            <TextBlock Text="周日" Grid.Row="0" Grid.Column="7"/>
-            <!--Define the first column-->
-            <TextBlock Text="1" Grid.Column="0" Grid.Row="1"/>
-            <TextBlock Text="2" Grid.Column="0" Grid.Row="2"/>
-            <TextBlock Text="3" Grid.Column="0" Grid.Row="3"/>
-            <TextBlock Text="4" Grid.Column="0" Grid.Row="4"/>
-            <TextBlock Text="5" Grid.Column="0" Grid.Row="5"/>
-            <TextBlock Text="6" Grid.Column="0" Grid.Row="6"/>
-            <TextBlock Text="7" Grid.Column="0" Grid.Row="7"/>
-            <TextBlock Text="8" Grid.Column="0" Grid.Row="8"/>
-            <TextBlock Text="9" Grid.Column="0" Grid.Row="9"/>
-            <TextBlock Text="10" Grid.Column="0" Grid.Row="10"/>
-            <TextBlock Text="11" Grid.Column="0" Grid.Row="11"/>
-        </Grid>
+                <TextBlock Text="周一" Grid.Row="0" Grid.Column="1"/>
+                <TextBlock Text="周二" Grid.Row="0" Grid.Column="2"/>
+                <TextBlock Text="周三" Grid.Row="0" Grid.Column="3"/>
+                <TextBlock Text="周四" Grid.Row="0" Grid.Column="4"/>
+                <TextBlock Text="周五" Grid.Row="0" Grid.Column="5"/>
+                <TextBlock Text="周六" Grid.Row="0" Grid.Column="6"/>
+                <TextBlock Text="周日" Grid.Row="0" Grid.Column="7"/>
+                <!--Define the first column-->
+                <TextBlock Text="1" Grid.Column="0" Grid.Row="1"/>
+                <TextBlock Text="2" Grid.Column="0" Grid.Row="2"/>
+                <TextBlock Text="3" Grid.Column="0" Grid.Row="3"/>
+                <TextBlock Text="4" Grid.Column="0" Grid.Row="4"/>
+                <TextBlock Text="5" Grid.Column="0" Grid.Row="5"/>
+                <TextBlock Text="6" Grid.Column="0" Grid.Row="6"/>
+                <TextBlock Text="7" Grid.Column="0" Grid.Row="7"/>
+                <TextBlock Text="8" Grid.Column="0" Grid.Row="8"/>
+                <TextBlock Text="9" Grid.Column="0" Grid.Row="9"/>
+                <TextBlock Text="10" Grid.Column="0" Grid.Row="10"/>
+                <TextBlock Text="11" Grid.Column="0" Grid.Row="11"/>
+            </Grid>
         </ScrollViewer>
-        <Pivot x:Name="singleDayCourseView" Grid.Row="1" HorizontalAlignment="Stretch" Visibility="Collapsed">
+        <Pivot x:Name="singleDayCourseView" Grid.Row="1" Visibility="Collapsed">
             <PivotItem>
                 <PivotItem.Header>
                     <TextBlock Text="周一" FontSize="14"/>

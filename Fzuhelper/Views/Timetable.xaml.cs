@@ -42,6 +42,8 @@ namespace Fzuhelper.Views
 
         private static WeekToInt weekToInt = new WeekToInt();
 
+        private static List<WeekDays> weekDays = new List<WeekDays>();
+
         public Timetable()
         {
             this.InitializeComponent();
@@ -303,6 +305,14 @@ namespace Fzuhelper.Views
             AppBarToggleButton sdct = (AppBarToggleButton)sender;
             if ((bool)sdct.IsChecked)
             {
+                weekDays.Clear();
+                foreach(string item in days)
+                {
+                    WeekDays day = new WeekDays() { day = item };
+                    weekDays.Add(day);
+                }
+                //singleDayCourseView.ItemsSource = null;
+                //singleDayCourseView.ItemsSource = weekDays;
                 timeTableView.Visibility = Visibility.Collapsed;
                 singleDayCourseView.Visibility = Visibility.Visible;
             }
@@ -408,6 +418,13 @@ namespace Fzuhelper.Views
                 w2i.Add("Saturday", 5);
                 w2i.Add("Sunday", 6);
             }
+        }
+
+        private static List<string> days = new List<string> { "周一", "周二", "周三", "周四", "周五", "周六", "周日" };
+
+        private class WeekDays
+        {
+            public string day { get; set; }
         }
     }
 }

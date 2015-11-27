@@ -15,7 +15,7 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
 
-        <CommandBar x:Name="topbar" VerticalAlignment="Top" HorizontalContentAlignment="Stretch">
+        <CommandBar x:Name="topbar" VerticalAlignment="Top" HorizontalContentAlignment="Stretch" Background="#2196F3">
             <AppBarButton Icon="Refresh" Label="刷新" Click="refreshJwchNotice_Click"/>
             <!--<AppBarSeparator/>
             <AppBarToggleButton Icon="Sort" Label="Sort"/>

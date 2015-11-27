@@ -23,7 +23,7 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
 
-        <CommandBar x:Name="topbar" VerticalAlignment="Top" HorizontalContentAlignment="Stretch">
+        <CommandBar x:Name="topbar" VerticalAlignment="Top" HorizontalContentAlignment="Stretch" Background="#2196F3">
             <AppBarButton x:Name="selectedWeekBtn" Click="selectedWeekBtn_Click">
                 <TextBlock x:Name="selectedWeek" HorizontalAlignment="Center"/>
             </AppBarButton>
@@ -94,7 +94,7 @@
             <TextBlock Text="11" Grid.Column="0" Grid.Row="11"/>
         </Grid>
         </ScrollViewer>
-        <Pivot x:Name="singleDayCourseView" Grid.Row="1" Visibility="Collapsed">
+        <Pivot x:Name="singleDayCourseView" Grid.Row="1" HorizontalAlignment="Stretch" Visibility="Collapsed">
             <PivotItem>
                 <PivotItem.Header>
                     <TextBlock Text="周一" FontSize="14"/>

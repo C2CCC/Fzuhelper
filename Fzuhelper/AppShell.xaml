@@ -6,7 +6,7 @@
       xmlns:controls="using:Fzuhelper.Controls"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+      Background="#2196F3"
       KeyDown="AppShell_KeyDown"
       TabNavigation="Cycle"
       mc:Ignorable="d">

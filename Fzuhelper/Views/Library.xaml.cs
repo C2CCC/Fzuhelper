@@ -59,6 +59,7 @@ namespace Fzuhelper.Views
             }
             if(b.errMsg== "图书馆请求信息失败")
             {
+                MainPage.SendToast(b.errMsg);
                 return;
             }
             bookSearchResult.ItemsSource = b.data;

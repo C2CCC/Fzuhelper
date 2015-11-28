@@ -23,7 +23,7 @@ namespace Fzuhelper.Views
 
         private static string gradePointToken = "55cafd5f6dd29baa6db9f9419d731964";
 
-        public static async Task<string> GetFromJwch(string method,string purpose,HttpFormUrlEncodedContent content)
+        public static async Task<string> GetFromJwch(string method,string purpose,HttpFormUrlEncodedContent content,bool tokenRequire = false)
         {
             HttpClient httpClient = new HttpClient();
             string uri;
@@ -74,7 +74,7 @@ namespace Fzuhelper.Views
                 try
                 {
                     CheckJwch c = JsonConvert.DeserializeObject<CheckJwch>(httpResponseBody);
-                    if(c.errMsg!= "")
+                    if(c.errMsg!= "" && c.errMsg != null && tokenRequire)
                     {
                         await ReLogin();
                         return "relogin";
@@ -146,10 +146,10 @@ namespace Fzuhelper.Views
                 string token = (await FileIO.ReadTextAsync(usrInfo)).Split('\n')[1];
                 //Get data
                 HttpFormUrlEncodedContent content = new HttpFormUrlEncodedContent(new[] { new KeyValuePair<string, string>("token", token) });
-                jsonData = await HttpRequest.GetFromJwch("get", "getExamRoom", content);
+                jsonData = await HttpRequest.GetFromJwch("get", "getExamRoom", content,true);
                 if (jsonData == "relogin")
                 {
-                    jsonData = await HttpRequest.GetFromJwch("get", "getExamRoom", content);
+                    jsonData = await HttpRequest.GetFromJwch("get", "getExamRoom", content,true);
                 }
                 //System.Diagnostics.Debug.WriteLine(examArr.ElementAt<Dictionary<string,string>>(0)["courseName"]);
                 try
@@ -194,7 +194,11 @@ namespace Fzuhelper.Views
                 string token = (await FileIO.ReadTextAsync(usrInfo)).Split('\n')[1];
                 //Get data
                 HttpFormUrlEncodedContent content = new HttpFormUrlEncodedContent(new[] { new KeyValuePair<string, string>("token", token) });
-                jsonData = await HttpRequest.GetFromJwch("get", "getScore", content);
+                jsonData = await HttpRequest.GetFromJwch("get", "getScore", content,true);
+                if (jsonData == "relogin")
+                {
+                    jsonData = await HttpRequest.GetFromJwch("get", "getScore", content, true);
+                }
                 //System.Diagnostics.Debug.WriteLine(examArr.ElementAt<Dictionary<string,string>>(0)["courseName"]);
                 try
                 {

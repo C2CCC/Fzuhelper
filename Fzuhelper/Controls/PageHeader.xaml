@@ -14,7 +14,8 @@
     Height="48"
     mc:Ignorable="d"
     d:DesignHeight="300"
-    d:DesignWidth="400">
+    d:DesignWidth="400"
+    RequestedTheme="Dark">
     
     <Grid x:Name="grid" Background="{x:Bind Background}">
         <Grid x:Name="titleBar">

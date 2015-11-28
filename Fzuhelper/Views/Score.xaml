@@ -21,7 +21,7 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
 
-        <CommandBar x:Name="topbar" VerticalAlignment="Top" HorizontalContentAlignment="Stretch" Background="#2196F3">
+        <CommandBar x:Name="topbar" Foreground="White" VerticalAlignment="Top" HorizontalContentAlignment="Stretch" Background="#2196F3">
             <AppBarButton x:Name="gradePoint" Icon="Tag" Label="绩点">
                 <AppBarButton.Flyout>
                     <Flyout>

@@ -9,6 +9,7 @@ using Windows.ApplicationModel.Background;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Storage;
+using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -108,6 +109,37 @@ namespace Fzuhelper
             }
             // 确保当前窗口处于活动状态
             Window.Current.Activate();
+
+
+            // set up brushes
+            SolidColorBrush bkgColor = Current.Resources["TitleBarBackgroundThemeBrush"] as SolidColorBrush;
+            SolidColorBrush fgColor = Current.Resources["TitleBarForegroundThemeBrush"] as SolidColorBrush;
+            //手机statusbar颜色
+            try
+            {
+                var statusBar = Windows.UI.ViewManagement.StatusBar.GetForCurrentView();
+                statusBar.ForegroundColor = fgColor.Color;
+            }
+            catch
+            {
+
+            }
+
+            //桌面titlebar颜色
+            try
+            {
+                var titleBar = Windows.UI.ViewManagement.ApplicationView.GetForCurrentView().TitleBar;
+                titleBar.BackgroundColor = bkgColor.Color;
+                titleBar.ForegroundColor = fgColor.Color;
+                titleBar.ButtonHoverBackgroundColor = Colors.LightBlue;
+                titleBar.ButtonBackgroundColor = bkgColor.Color;
+                titleBar.ButtonForegroundColor = fgColor.Color;
+            }
+            catch
+            {
+
+            }
+
 
             //后台任务注册
             var taskRegistered = false;

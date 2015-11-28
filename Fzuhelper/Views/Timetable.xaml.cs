@@ -16,6 +16,9 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Newtonsoft.Json;
 using Windows.Web.Http;
+using Windows.UI.Xaml.Media.Imaging;
+using Windows.UI.Text;
+using Windows.UI;
 
 // “空白页”项模板在 http://go.microsoft.com/fwlink/?LinkId=234238 上提供
 
@@ -43,6 +46,28 @@ namespace Fzuhelper.Views
         private static WeekToInt weekToInt = new WeekToInt();
 
         private static List<WeekDays> weekDays = new List<WeekDays>();
+
+        private static byte courseColorAlpha = 150;
+
+        private static List<SolidColorBrush> courseColor = new List<SolidColorBrush>
+        {
+            new SolidColorBrush(Color.FromArgb(courseColorAlpha,236,151,148)),
+            new SolidColorBrush(Color.FromArgb(courseColorAlpha,230,136,170)),
+            new SolidColorBrush(Color.FromArgb(courseColorAlpha,152,158,208)),
+            new SolidColorBrush(Color.FromArgb(courseColorAlpha,122,175,168)),
+            new SolidColorBrush(Color.FromArgb(courseColorAlpha,139,191,239)),
+            new SolidColorBrush(Color.FromArgb(courseColorAlpha,156,201,158)),
+            new SolidColorBrush(Color.FromArgb(courseColorAlpha,249,192,123)),
+            new SolidColorBrush(Color.FromArgb(courseColorAlpha,249,212,123)),
+            new SolidColorBrush(Color.FromArgb(courseColorAlpha,192,139,207)),
+            new SolidColorBrush(Color.FromArgb(courseColorAlpha,142,142,56))
+        };
+
+        private static int courseColorCount;
+
+        private static int courseColorAmount = 10;
+
+        private static Dictionary<string, SolidColorBrush> courseColorDict = new Dictionary<string, SolidColorBrush>();
 
         public Timetable()
         {
@@ -113,6 +138,10 @@ namespace Fzuhelper.Views
                 }
             }
 
+            //Preparation for course color
+            courseColorCount = 0;
+            courseColorDict.Clear();
+
             for(int i = 1; i <= 7; i++)
             {
                 //Initialize single day course arr list
@@ -168,6 +197,22 @@ namespace Fzuhelper.Views
                     singleCourse.Content = stackPanel;
                     singleCourse.Flyout = AddCourseFlyout(stackPanel);
                     singleCourse.Click += SingleCourse_Click;
+                    //Set course background color
+                    if (courseColorDict.ContainsKey(currentCourse.courseName))
+                    {
+                        singleCourse.Background = courseColorDict[currentCourse.courseName];
+                    }
+                    else
+                    {
+                        singleCourse.Background = courseColor[courseColorCount];
+                        courseColorDict.Add(currentCourse.courseName, courseColor[courseColorCount]);
+                        courseColorCount++;
+                        if(courseColorCount == courseColorAmount)
+                        {
+                            courseColorCount = 0;
+                        }
+                    }
+
                     Grid.SetColumn(singleCourse, i);
                     Grid.SetRow(singleCourse, jie);
                     if (rowspans != 0)
@@ -425,6 +470,25 @@ namespace Fzuhelper.Views
         private class WeekDays
         {
             public string day { get; set; }
+        }
+
+        private void singleDayCourseView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            foreach(PivotItem item in singleDayCourseView.Items)
+            {
+                if(item == singleDayCourseView.Items[singleDayCourseView.SelectedIndex])
+                {
+                    //selected
+                    ((TextBlock)item.Header).FontWeight = FontWeights.ExtraBold;
+                    ((TextBlock)item.Header).Opacity = 1;
+                }
+                else
+                {
+                    //unselected
+                    ((TextBlock)item.Header).FontWeight = FontWeights.Normal;
+                    ((TextBlock)item.Header).Opacity = 0.5;
+                }
+            }
         }
     }
 }

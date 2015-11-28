@@ -32,6 +32,10 @@
                 <TextBlock x:Name="Text" Grid.Column="1" Text="{x:Bind Label}" />
             </Grid>
         </DataTemplate>
+
+        <Style TargetType="TextBlock" >
+            <Setter Property="Foreground" Value="Black"/>
+        </Style>
     </Page.Resources>
 
     <Grid>
@@ -128,6 +132,7 @@
         <ToggleButton x:Name="TogglePaneButton"
                       TabIndex="1"
                       Style="{StaticResource SplitViewTogglePaneButtonStyle}"
+                      Foreground="White"
                       IsChecked="{Binding IsPaneOpen, ElementName=RootSplitView, Mode=TwoWay}"
                       Unchecked="TogglePaneButton_Checked"
                       AutomationProperties.Name="Menu"

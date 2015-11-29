@@ -178,7 +178,7 @@ namespace Fzuhelper.Views
                     singleDayCourseList[i - 1].Add(new SingleDayCourseArr(currentCourse.courseName, currentCourse.place, currentCourse.teacherName, currentCourse.betweenWeek+"周", jieDur));
                     //Create stackpanel and visible textblocks
                     StackPanel stackPanel = new StackPanel() { Orientation=Orientation.Vertical};
-                    TextBlock textBlock1 = new TextBlock() {Text = (currentCourse.courseName.Length>8)? currentCourse.courseName.Substring(0,8)+"…": currentCourse.courseName, Foreground = new SolidColorBrush(Color.FromArgb(255,255,255,255)), FontSize=12 , HorizontalAlignment=HorizontalAlignment.Stretch , TextWrapping=TextWrapping.WrapWholeWords};
+                    TextBlock textBlock1 = new TextBlock() { Text = currentCourse.courseName, MaxLines = 2, Foreground = new SolidColorBrush(Color.FromArgb(255,255,255,255)), FontSize=12 , HorizontalAlignment=HorizontalAlignment.Stretch , TextWrapping=TextWrapping.WrapWholeWords};
                     TextBlock textBlock2 = new TextBlock() {Text = currentCourse.place , Foreground = new SolidColorBrush(Color.FromArgb(255, 255, 255, 255)), FontSize = 12, HorizontalAlignment = HorizontalAlignment.Stretch , TextWrapping = TextWrapping.WrapWholeWords};
                     //Invisible textblocks
                     TextBlock textBlock3 = new TextBlock() {Text = currentCourse.teacherName , Visibility = Visibility.Collapsed};

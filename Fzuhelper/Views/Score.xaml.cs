@@ -22,6 +22,21 @@ using System.Collections.ObjectModel;
 
 namespace Fzuhelper.Views
 {
+
+    public class ShortenMark : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            string mark = (string)value;
+            return mark == "成绩尚未录入" ? "尚未录入" : mark;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     /// <summary>
     /// 可用于自身或导航至 Frame 内部的空白页。
     /// </summary>

@@ -1,5 +1,5 @@
 ﻿<Page
-    x:Class="Fzuhelper.Views.ExamRoom"
+    x:Class="Fzuhelper.Views.EmptyRoom"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Fzuhelper.Views"
@@ -15,7 +15,6 @@
         </Grid.RowDefinitions>
 
         <CommandBar x:Name="topbar">
-            <AppBarButton Icon="Refresh" Label="刷新" Click="refreshExamRoom_Click"/>
             <!--<AppBarSeparator/>
             <AppBarToggleButton Icon="Sort" Label="Sort"/>
             <CommandBar.SecondaryCommands>
@@ -26,12 +25,12 @@
             <CommandBar.Content>
                 <c:PageHeader x:Name="pageHeader">
                     <c:PageHeader.HeaderContent>
-                        <TextBlock x:Name="title" Style="{ThemeResource PageTitleTextBlockStyle}" Text="考场"/>
+                        <TextBlock x:Name="title" Style="{ThemeResource PageTitleTextBlockStyle}" Text="空教室"/>
                     </c:PageHeader.HeaderContent>
                 </c:PageHeader>
             </CommandBar.Content>
         </CommandBar>
-        
+
         <ListView x:Name="listView" Grid.Row="1" IsSwipeEnabled="True" ItemTemplate="{StaticResource ExamRoom}"></ListView>
         <ProgressRing x:Name="refreshIndicator" Grid.Row="1" Width="80" Height="80"/>
     </Grid>

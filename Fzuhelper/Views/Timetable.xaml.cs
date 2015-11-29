@@ -47,7 +47,7 @@ namespace Fzuhelper.Views
 
         private static List<WeekDays> weekDays = new List<WeekDays>();
 
-        private static byte courseColorAlpha = 150;
+        private static byte courseColorAlpha = 180;
 
         private static List<SolidColorBrush> courseColor = new List<SolidColorBrush>
         {
@@ -178,8 +178,8 @@ namespace Fzuhelper.Views
                     singleDayCourseList[i - 1].Add(new SingleDayCourseArr(currentCourse.courseName, currentCourse.place, currentCourse.teacherName, currentCourse.betweenWeek+"周", jieDur));
                     //Create stackpanel and visible textblocks
                     StackPanel stackPanel = new StackPanel() { Orientation=Orientation.Vertical};
-                    TextBlock textBlock1 = new TextBlock() {Text = currentCourse.courseName , FontSize=12 , HorizontalAlignment=HorizontalAlignment.Stretch , TextWrapping=TextWrapping.WrapWholeWords};
-                    TextBlock textBlock2 = new TextBlock() {Text = currentCourse.place , FontSize = 12, HorizontalAlignment = HorizontalAlignment.Stretch , TextWrapping = TextWrapping.WrapWholeWords};
+                    TextBlock textBlock1 = new TextBlock() {Text = (currentCourse.courseName.Length>8)? currentCourse.courseName.Substring(0,8)+"…": currentCourse.courseName, Foreground = new SolidColorBrush(Color.FromArgb(255,255,255,255)), FontSize=12 , HorizontalAlignment=HorizontalAlignment.Stretch , TextWrapping=TextWrapping.WrapWholeWords};
+                    TextBlock textBlock2 = new TextBlock() {Text = currentCourse.place , Foreground = new SolidColorBrush(Color.FromArgb(255, 255, 255, 255)), FontSize = 12, HorizontalAlignment = HorizontalAlignment.Stretch , TextWrapping = TextWrapping.WrapWholeWords};
                     //Invisible textblocks
                     TextBlock textBlock3 = new TextBlock() {Text = currentCourse.teacherName , Visibility = Visibility.Collapsed};
                     TextBlock textBlock4 = new TextBlock() {Text = currentCourse.betweenWeek, Visibility = Visibility.Collapsed };

@@ -21,7 +21,7 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
 
-        <CommandBar x:Name="topbar" Foreground="White" VerticalAlignment="Top" HorizontalContentAlignment="Stretch" Background="#2196F3">
+        <CommandBar x:Name="topbar">
             <AppBarButton x:Name="gradePoint" Icon="Tag" Label="绩点">
                 <AppBarButton.Flyout>
                     <Flyout>
@@ -61,7 +61,10 @@
         
         <SemanticZoom Grid.Row="1">
             <SemanticZoom.ZoomedInView>
-                <ListView x:Name="listViewZoomInView" ItemsSource="{Binding Source={StaticResource cvsGroups}}" ItemTemplate="{StaticResource Score}">
+                <ListView x:Name="listViewZoomInView" ItemsSource="{Binding Source={StaticResource cvsGroups}}">
+                    <ListView.Resources>
+                        <local:ShortenMark x:Key="shortenMark"/>
+                    </ListView.Resources>
                     <ListView.HeaderTemplate>
                         <DataTemplate>
                             <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
@@ -78,6 +81,22 @@
                             </Grid>
                         </DataTemplate>
                     </ListView.HeaderTemplate>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="4*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="2*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" TextWrapping="Wrap" Text="{Binding Path=courseName}"/>
+                                <TextBlock Grid.Column="1" HorizontalAlignment="Center" Text="{Binding Path=credit}"/>
+                                <TextBlock Grid.Column="2" HorizontalAlignment="Center" Text="{Binding Path=gradePoint}"/>
+                                <TextBlock Grid.Column="3" HorizontalAlignment="Center" Text="{Binding Path=sore,Converter={StaticResource shortenMark}}"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
                     <ListView.GroupStyle>
                         <GroupStyle HeaderTemplate="{StaticResource ZoomInViewHeader}"/>
                     </ListView.GroupStyle>

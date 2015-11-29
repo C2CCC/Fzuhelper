@@ -18,16 +18,36 @@
     </Page.Resources>
     
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState x:Name="wideState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="641"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="singleViewToggleButton.Visibility" Value="Collapsed"/>
+                        <Setter Target="timeTableView.Visibility" Value="Visible"/>
+                        <Setter Target="singleDayCourseView.Visibility" Value="Visible"/>
+                        <Setter Target="singleDayCourseColumn.Width" Value="*"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="narrowState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0"/>
+                    </VisualState.StateTriggers>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
         <Grid.RowDefinitions>
-            <RowDefinition Height="auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
 
-        <CommandBar x:Name="topbar" Foreground="White" VerticalAlignment="Top" HorizontalContentAlignment="Stretch" Background="#2196F3">
+        <CommandBar x:Name="topbar">
             <AppBarButton x:Name="selectedWeekBtn" Click="selectedWeekBtn_Click">
                 <TextBlock x:Name="selectedWeek" HorizontalAlignment="Center"/>
             </AppBarButton>
-            <AppBarToggleButton Icon="Page" Label="单日视图" Click="SingleDayCourseToggle_Click"/>
+            <AppBarToggleButton x:Name="singleViewToggleButton" Icon="Page" Label="单日视图" Click="SingleDayCourseToggle_Click"/>
             <AppBarButton Icon="Refresh" Label="刷新" Click="refreshTimetable_Click"/>
             <!--<AppBarSeparator/>
             <AppBarToggleButton Icon="Sort" Label="Sort"/>-->
@@ -45,8 +65,14 @@
             </CommandBar.Content>
         </CommandBar>
 
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto" x:Name="singleDayCourseColumn"/>
+            </Grid.ColumnDefinitions>
 
-        <ScrollViewer x:Name="timeTableView" Grid.Row="1" Visibility="Visible" HorizontalScrollMode="Disabled" VerticalScrollMode="Enabled" VerticalScrollBarVisibility="Hidden">
+
+            <ScrollViewer x:Name="timeTableView" Grid.Column="0" Visibility="Visible" HorizontalScrollMode="Disabled" VerticalScrollMode="Enabled" VerticalScrollBarVisibility="Hidden">
             <ScrollViewer.Background>
                 <ImageBrush x:Name="timetableBackgroundImg" ImageSource="/Assets/Timetable_Background_01.jpg" Opacity="0.8" Stretch="UniformToFill" AlignmentX="Center" AlignmentY="Center"/>
             </ScrollViewer.Background>
@@ -97,7 +123,7 @@
                 <TextBlock Text="11" Grid.Column="0" Grid.Row="11"/>
             </Grid>
         </ScrollViewer>
-        <Pivot x:Name="singleDayCourseView" Grid.Row="1" Visibility="Collapsed" SelectionChanged="singleDayCourseView_SelectionChanged">
+        <Pivot x:Name="singleDayCourseView" Grid.Column="1" Visibility="Collapsed" SelectionChanged="singleDayCourseView_SelectionChanged">
             <PivotItem>
                 <PivotItem.Header>
                     <TextBlock Text="周一" FontSize="14" Foreground="White"/>
@@ -141,6 +167,7 @@
                 <ListView x:Name="SunCourse" IsSwipeEnabled="True" ItemTemplate="{StaticResource SingleDayCourseTemplate}"/>
             </PivotItem>
         </Pivot>
+        </Grid>
         <ProgressRing x:Name="refreshIndicator" Grid.Row="1" Width="80" Height="80"/>
     </Grid>
 </Page>

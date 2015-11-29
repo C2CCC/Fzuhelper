@@ -59,6 +59,12 @@ namespace Fzuhelper
                 },
                 new NavMenuItem()
                 {
+                    Symbol = Symbol.View,
+                    Label = "空教室",
+                    DestPage = typeof(EmptyRoom)
+                },
+                new NavMenuItem()
+                {
                     Symbol = Symbol.Library,
                     Label = "图书馆",
                     DestPage = typeof(Library)

@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Web.Http;
 using Newtonsoft.Json;
+using System.Net;
+using System.IO;
+using System.Text.RegularExpressions;
 
 namespace Fzuhelper.Views
 {
@@ -19,6 +22,8 @@ namespace Fzuhelper.Views
             getBookSearchResult = "http://219.229.132.35/api/api.php/FzuHelper/bookSearch.html",
             getJwchNotice = "http://219.229.132.35/api/api.php/FzuHelper/jwcInfo.html",
             getGradePoint = "http://120.24.251.94/api/point.php",
+            getEmptyRoom = "http://59.77.231.43/empty_room.php",
+            getCurrentWeek = "http://219.229.132.35/api/api.php/Jwch/nowWeekCount.html",
             Login = "http://219.229.132.35/api/api.php/Jwch/login.html";
 
         private static string gradePointToken = "55cafd5f6dd29baa6db9f9419d731964";
@@ -49,6 +54,12 @@ namespace Fzuhelper.Views
                     break;
                 case "getGradePoint":
                     uri = getGradePoint;
+                    break;
+                case "getEmptyRoom":
+                    uri = getEmptyRoom;
+                    break;
+                case "getCurrentWeek":
+                    uri = getCurrentWeek;
                     break;
                 default:
                     uri = "";
@@ -83,7 +94,7 @@ namespace Fzuhelper.Views
                 }
                 catch
                 {
-                    return "error";
+                    return httpResponseBody;
                 }
             }
             catch
@@ -340,8 +351,151 @@ namespace Fzuhelper.Views
             }
         }
 
+        public static async Task<string> GetEmptyRoom(string time,string place,string star,string end,string term)
+        {
+            string jsonData = "";
+            string regexStr = @"{.*sum.*}";
+            try
+            {
+                //Get data
+                HttpFormUrlEncodedContent content = new HttpFormUrlEncodedContent(new[] { new KeyValuePair<string, string>("time", time), new KeyValuePair<string, string>("place", place), new KeyValuePair<string, string>("star", star), new KeyValuePair<string, string>("end", end), new KeyValuePair<string, string>("term", term) });
+                jsonData = await HttpRequest.GetFromJwch("get", "getEmptyRoom", content);
+                try
+                {
+                    Match mt = Regex.Match(jsonData, regexStr);
+                    jsonData = mt.Value;
+                }
+                catch
+                {
+
+                }
+                return jsonData;
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
         #endregion
 
+
+        //get term,week
+        public static async Task<string> TryGetTerm()
+        {
+            string term = "";
+            try
+            {
+                term = await GetTermFromJwch();
+                return term;
+            }
+            catch
+            {
+                try
+                {
+                    StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
+                    StorageFile termInfo = await fzuhelperDataFolder.GetFileAsync("termInfo.dat");
+                    term = await FileIO.ReadTextAsync(termInfo);
+                }
+                catch
+                {
+
+                }
+                return term;
+            }
+        }
+
+        private static async Task<string> GetTermFromJwch()
+        {
+            string strMsg = "";
+            string regexStr = @"\d{4}.{3}\d{2}.{3}";
+            //string regexStr = @"\d{4}\w{2}\d{2}\w{2}";
+            string term = "";
+            string url = "http://59.77.226.32/tt.asp";
+            try
+            {
+                WebRequest request = WebRequest.Create(url);
+                WebResponse response = request.GetResponseAsync().Result;
+                StreamReader reader = new StreamReader(response.GetResponseStream());
+                strMsg = reader.ReadToEnd();
+
+                Match mt = Regex.Match(strMsg, regexStr);
+                term = mt.Value;
+
+                term = term.Substring(0, 4) + "学年" + term.Substring(7, 2) + "学期";
+
+                reader.Dispose();
+                response.Dispose();
+                try
+                {
+                    StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
+                    StorageFile termInfo = await fzuhelperDataFolder.CreateFileAsync("termInfo.dat", CreationCollisionOption.ReplaceExisting);
+                    await FileIO.WriteTextAsync(termInfo, term);
+                }
+                catch
+                {
+
+                }
+                return term;
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
+        public static async Task<string> TryGetWeek()
+        {
+            string week = "";
+            try
+            {
+                week = await GetCurrentWeek();
+                return week;
+            }
+            catch
+            {
+                try
+                {
+                    StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
+                    StorageFile weekInfo = await fzuhelperDataFolder.GetFileAsync("weekInfo.dat");
+                    week = await FileIO.ReadTextAsync(weekInfo);
+                }
+                catch
+                {
+
+                }
+                return week;
+            }
+        }
+
+        public static async Task<string> GetCurrentWeek()
+        {
+            string jsonData = "";
+            try
+            {
+                //Get data
+                HttpFormUrlEncodedContent content = new HttpFormUrlEncodedContent(new[] { new KeyValuePair<string, string>("","") });
+                jsonData = await HttpRequest.GetFromJwch("get", "getCurrentWeek", content);
+                LogInReturnValue r = JsonConvert.DeserializeObject<LogInReturnValue>(jsonData);
+                jsonData = r.data["week"];
+                jsonData = "第" + jsonData + "周";
+                try
+                {
+                    StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
+                    StorageFile weekInfo = await fzuhelperDataFolder.CreateFileAsync("weekInfo.dat", CreationCollisionOption.ReplaceExisting);
+                    await FileIO.WriteTextAsync(weekInfo, jsonData);
+                }
+                catch
+                {
+
+                }
+                return jsonData;
+            }
+            catch
+            {
+                return "";
+            }
+        }
 
 
 

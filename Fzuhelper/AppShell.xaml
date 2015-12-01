@@ -96,7 +96,8 @@
                     <StackPanel x:Name="userInfoHeader" Grid.Row="0" Margin="0,0,0,0">
                         <Rectangle x:Name="headerFillRect" Visibility="Collapsed" Height="48" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="{ThemeResource TitleBarBackgroundThemeBrush}"/>
                         <TextBlock x:Name="userName" FontSize="24" Margin="50 10 0 10"/>
-                        <TextBlock x:Name="termTime" Margin="50 10 0 10"/>
+                        <TextBlock x:Name="weekTime" Margin="50 10 0 5"/>
+                        <TextBlock x:Name="termTime" Margin="50 5 0 10"/>
                     </StackPanel>
                 <!-- A custom ListView to display the items in the pane.  The automation Name is set in the ContainerContentChanging event. -->
                 <controls:NavMenuListView x:Name="NavMenuList"

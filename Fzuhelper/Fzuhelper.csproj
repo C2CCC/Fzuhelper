@@ -115,6 +115,9 @@
     <Compile Include="Views\About.xaml.cs">
       <DependentUpon>About.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\EmptyRoom.xaml.cs">
+      <DependentUpon>EmptyRoom.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\ExamRoom.xaml.cs">
       <DependentUpon>ExamRoom.xaml</DependentUpon>
     </Compile>

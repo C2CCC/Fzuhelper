@@ -132,6 +132,7 @@ namespace Fzuhelper
             try
             {
                 userName.Text = localSettings.Values["stuname"].ToString();
+                weekTime.Text = localSettings.Values["week"].ToString();
                 termTime.Text = localSettings.Values["term"].ToString();
             }
             catch

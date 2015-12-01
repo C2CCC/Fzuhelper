@@ -10,28 +10,70 @@
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
 
-        <CommandBar x:Name="topbar">
-            <!--<AppBarSeparator/>
-            <AppBarToggleButton Icon="Sort" Label="Sort"/>
-            <CommandBar.SecondaryCommands>
-                <AppBarButton Label="Menu Item 1"/>
-                <AppBarButton Label="Menu Item 2"/>
-                <AppBarButton Label="Menu Item 3"/>
-            </CommandBar.SecondaryCommands> -->
-            <CommandBar.Content>
-                <c:PageHeader x:Name="pageHeader">
-                    <c:PageHeader.HeaderContent>
-                        <TextBlock x:Name="title" Style="{ThemeResource PageTitleTextBlockStyle}" Text="空教室"/>
-                    </c:PageHeader.HeaderContent>
-                </c:PageHeader>
-            </CommandBar.Content>
-        </CommandBar>
+        <c:PageHeader x:Name="pageHeader">
+            <c:PageHeader.HeaderContent>
+                <TextBlock x:Name="title" Style="{ThemeResource PageTitleTextBlockStyle}" Text="空教室"/>
+            </c:PageHeader.HeaderContent>
+        </c:PageHeader>
 
-        <ListView x:Name="listView" Grid.Row="1" IsSwipeEnabled="True" ItemTemplate="{StaticResource ExamRoom}"></ListView>
-        <ProgressRing x:Name="refreshIndicator" Grid.Row="1" Width="80" Height="80"/>
+        <StackPanel Grid.Row="1" Orientation="Vertical" Margin="10">
+            <DatePicker x:Name="datePicker" Header="日期" Margin="0 10 0 10"/>
+            <ComboBox x:Name="placeSelector" Header="地点" SelectedIndex="0" Margin="0 10 0 10">
+                <x:String>西三</x:String>
+                <x:String>西二</x:String>
+                <x:String>西一</x:String>
+                <x:String>中楼</x:String>
+                <x:String>东一</x:String>
+                <x:String>东二</x:String>
+                <x:String>东三</x:String>
+                <x:String>文楼</x:String>
+            </ComboBox>
+            <TextBlock Text="节数" Margin="0 10 0 10"/>
+            <StackPanel Orientation="Horizontal" Margin="0 0 0 10">
+                <ComboBox x:Name="beginJie" SelectedIndex="0">
+                    <x:String>1</x:String>
+                    <x:String>2</x:String>
+                    <x:String>3</x:String>
+                    <x:String>4</x:String>
+                    <x:String>5</x:String>
+                    <x:String>6</x:String>
+                    <x:String>7</x:String>
+                    <x:String>8</x:String>
+                    <x:String>9</x:String>
+                    <x:String>10</x:String>
+                    <x:String>11</x:String>
+                </ComboBox>
+                <TextBlock Text="-" Margin="10 0 10 0"/>
+                <ComboBox x:Name="endJie" SelectedIndex="10">
+                    <x:String>1</x:String>
+                    <x:String>2</x:String>
+                    <x:String>3</x:String>
+                    <x:String>4</x:String>
+                    <x:String>5</x:String>
+                    <x:String>6</x:String>
+                    <x:String>7</x:String>
+                    <x:String>8</x:String>
+                    <x:String>9</x:String>
+                    <x:String>10</x:String>
+                    <x:String>11</x:String>
+                </ComboBox>
+            </StackPanel>
+            <Button Content="查询" HorizontalAlignment="Stretch" Click="EmptyRoomButton_Click" Margin="0 10 0 10"/>
+        </StackPanel>
+
+        <GridView x:Name="emptyRoomSearchResultView" Grid.Row="2" IsSwipeEnabled="True" Margin="10 0 10 0">
+            <GridView.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding}" Margin="25"/>
+                </DataTemplate>
+            </GridView.ItemTemplate>
+        </GridView>
+        
+        <ProgressRing x:Name="refreshIndicator" Grid.Row="2" Width="80" Height="80"/>
     </Grid>
 </Page>

@@ -28,9 +28,10 @@ namespace Fzuhelper.Views
 
         private static string gradePointToken = "55cafd5f6dd29baa6db9f9419d731964";
 
+        private static readonly HttpClient httpClient = new HttpClient();
+
         public static async Task<string> GetFromJwch(string method,string purpose,HttpFormUrlEncodedContent content,bool tokenRequire = false)
         {
-            HttpClient httpClient = new HttpClient();
             string uri;
             switch (purpose)
             {

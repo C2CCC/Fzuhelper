@@ -23,7 +23,7 @@
 
         <StackPanel Grid.Row="1" Orientation="Vertical" Margin="5 10 5 10" Padding="10">
             <TextBox x:Name="bookName" PlaceholderText="书名" Margin="0 0 0 20"/>
-            <Button x:Name="bookSearch" Content="检索" HorizontalAlignment="Stretch" Background="{ThemeResource ButtonBackgroundThemeBrush}" Click="bookSearch_Click"/>
+            <Button x:Name="bookSearch" BorderThickness="1" BorderBrush="#2196F3" Background="White" Content="检索" HorizontalAlignment="Stretch" Click="bookSearch_Click"/>
         </StackPanel>
 
         <ScrollViewer x:Name="scrollViewer" Grid.Row="2">

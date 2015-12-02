@@ -69,7 +69,7 @@ namespace Fzuhelper.Views
 
         private async void IniList(bool IsRefresh)
         {
-            bool ir = IsRefresh ? true : false;
+            bool ir = IsRefresh;
             try
             {
                 refreshIndicator.IsActive = true;
@@ -78,6 +78,7 @@ namespace Fzuhelper.Views
                 StorageFile score = await fzuhelperDataFolder.GetFileAsync("score.dat");
                 jsonData = await FileIO.ReadTextAsync(score);
                 //System.Diagnostics.Debug.WriteLine(jsonData);
+                initialAgain = true;
                 srv = JsonConvert.DeserializeObject<ScoreReturnValue>(jsonData);
                 //System.Diagnostics.Debug.WriteLine(srv.data["markArr"]);
                 markArr = JsonConvert.DeserializeObject<List<ScoreArr>>(srv.data["markArr"].ToString());
@@ -85,7 +86,6 @@ namespace Fzuhelper.Views
                 cvsGroups.Source = Groups;
                 listViewZoomOutView.ItemsSource = cvsGroups.View.CollectionGroups;
                 GetAllGradePoint(IsRefresh);
-                initialAgain = true;
                 refreshIndicator.IsActive = false;
             }
             catch

@@ -52,11 +52,11 @@ namespace Fzuhelper.Views
                 StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
                 StorageFile examRoom = await fzuhelperDataFolder.GetFileAsync("examRoom.dat");
                 jsonData = await FileIO.ReadTextAsync(examRoom);
+                initialAgain = true;
                 errv = JsonConvert.DeserializeObject<ExamRoomReturnValue>(jsonData);
                 //System.Diagnostics.Debug.WriteLine(errv.data["stuname"]);
                 examArr = JsonConvert.DeserializeObject<List<ExamRoomArr>>(errv.data["examArr"].ToString());
                 listView.ItemsSource = examArr;
-                initialAgain = true;
                 refreshIndicator.IsActive = false;
             }
             catch

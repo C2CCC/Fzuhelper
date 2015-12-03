@@ -2,9 +2,8 @@
     x:Class="Fzuhelper.Views.JwchNotice"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Fzuhelper"
+    xmlns:local="using:Fzuhelper.Views"
     xmlns:c="using:Fzuhelper.Controls"
-    xmlns:v="using:Fzuhelper.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
@@ -35,7 +34,7 @@
 
         <ListView x:Name="jwchNoticeListView" Grid.Row="1" IsSwipeEnabled="True" IsItemClickEnabled="True" ItemClick="jwchNoticeListView_ItemClick">
             <ListView.Resources>
-                <v:TurnRed x:Key="turnRed"/>
+                <local:TurnRed x:Key="turnRed"/>
             </ListView.Resources>
             <ListView.ItemTemplate>
             <DataTemplate>

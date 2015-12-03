@@ -33,6 +33,10 @@ namespace Fzuhelper.Views
 
         //private static bool initialAgain = true;
 
+        private static bool firstTimeLoad = true;
+
+        private ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
+
         private string jsonData;
 
         private TimetableReturnValue ttrv;
@@ -73,7 +77,24 @@ namespace Fzuhelper.Views
         {
             this.InitializeComponent();
 
+            //SetTimetableBackground();
+
             IniList(false);
+        }
+
+        private void SetTimetableBackground()
+        {
+            string timetableUri = localSettings.Values["timetable_background"].ToString();
+            if (timetableUri == "white")
+            {
+                //timeTableMain.Background.Opacity = 1;
+            }
+            else
+            {
+                //timeTableMain.Background.Opacity = 0;
+                ImageBrush img = new ImageBrush();
+                timetableBackgroundImg.ImageSource = new BitmapImage(new Uri(timetableUri));
+            }
         }
 
         private async void IniList(bool IsRefresh)
@@ -90,7 +111,14 @@ namespace Fzuhelper.Views
                 }
                 catch
                 {
+                    if (firstTimeLoad)
+                    {
+                        IniList(true);
+                        firstTimeLoad = false;
+                        return;
+                    }
                     MainPage.SendToast("获取数据出错，请刷新");
+                    refreshIndicator.IsActive = false;
                     return;
                 }
             }
@@ -102,12 +130,14 @@ namespace Fzuhelper.Views
                     if(jsonData == "error")
                     {
                         MainPage.SendToast("获取数据出错");
+                        refreshIndicator.IsActive = false;
                         return;
                     }
                 }
                 catch
                 {
                     MainPage.SendToast("获取数据出错");
+                    refreshIndicator.IsActive = false;
                     return;
                 }
             }

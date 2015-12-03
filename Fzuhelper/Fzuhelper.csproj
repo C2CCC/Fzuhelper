@@ -131,6 +131,9 @@
     <Compile Include="Views\Score.xaml.cs">
       <DependentUpon>Score.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Settings.xaml.cs">
+      <DependentUpon>Settings.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Timetable.xaml.cs">
       <DependentUpon>Timetable.xaml</DependentUpon>
     </Compile>
@@ -195,6 +198,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Score.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Settings.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

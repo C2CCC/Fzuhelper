@@ -77,6 +77,12 @@ namespace Fzuhelper
                 },
                 new NavMenuItem()
                 {
+                    Symbol = Symbol.Setting,
+                    Label = "设置",
+                    DestPage = typeof(Settings)
+                },
+                new NavMenuItem()
+                {
                     Symbol = Symbol.Account,
                     Label = "关于",
                     DestPage = typeof(About)
@@ -121,6 +127,13 @@ namespace Fzuhelper
             }
 
             NavMenuList.ItemsSource = navlist;
+
+            //设置课表背景
+            if (localSettings.Values["timetable_background"] == null)
+            {
+                //默认第一张图片
+                localSettings.Values["timetable_background"] = "ms-appx:///Assets/Timetable_Background_01.jpg";
+            }
 
             if (this.AppFrame.Content == null)
             {

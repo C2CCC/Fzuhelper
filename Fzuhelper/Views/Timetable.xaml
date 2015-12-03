@@ -74,7 +74,7 @@
 
             <ScrollViewer x:Name="timeTableView" Grid.Column="0" Visibility="Visible" HorizontalScrollMode="Disabled" VerticalScrollMode="Enabled" VerticalScrollBarVisibility="Hidden">
             <ScrollViewer.Background>
-                <ImageBrush x:Name="timetableBackgroundImg" ImageSource="/Assets/Timetable_Background_01.jpg" Opacity="0.8" Stretch="UniformToFill" AlignmentX="Center" AlignmentY="Center"/>
+                <ImageBrush x:Name="timetableBackgroundImg" Opacity="0.8" Stretch="UniformToFill" AlignmentX="Center" AlignmentY="Center"/>
             </ScrollViewer.Background>
             <Grid x:Name="timeTableMain">
                 <Grid.ColumnDefinitions>

@@ -46,6 +46,8 @@ namespace Fzuhelper.Views
 
         //private static bool initialAgain = true;
 
+        private static bool firstTimeLoad = true;
+
         private string jsonData;
 
         private ScoreReturnValue srv;
@@ -81,7 +83,14 @@ namespace Fzuhelper.Views
                 }
                 catch
                 {
+                    if (firstTimeLoad)
+                    {
+                        IniList(true);
+                        firstTimeLoad = false;
+                        return;
+                    }
                     MainPage.SendToast("获取数据出错，请刷新");
+                    refreshIndicator.IsActive = false;
                     return;
                 }
             }
@@ -93,12 +102,14 @@ namespace Fzuhelper.Views
                     if (jsonData == "error")
                     {
                         MainPage.SendToast("获取数据出错");
+                        refreshIndicator.IsActive = false;
                         return;
                     }
                 }
                 catch
                 {
                     MainPage.SendToast("获取数据出错");
+                    refreshIndicator.IsActive = false;
                     return;
                 }
             }

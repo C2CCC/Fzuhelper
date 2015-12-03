@@ -73,11 +73,13 @@ namespace Fzuhelper.Views
 
         private static Dictionary<string, SolidColorBrush> courseColorDict = new Dictionary<string, SolidColorBrush>();
 
+        private static BitmapImage img = new BitmapImage();
+
         public Timetable()
         {
             this.InitializeComponent();
 
-            //SetTimetableBackground();
+            SetTimetableBackground();
 
             IniList(false);
         }
@@ -85,16 +87,8 @@ namespace Fzuhelper.Views
         private void SetTimetableBackground()
         {
             string timetableUri = localSettings.Values["timetable_background"].ToString();
-            if (timetableUri == "white")
-            {
-                //timeTableMain.Background.Opacity = 1;
-            }
-            else
-            {
-                //timeTableMain.Background.Opacity = 0;
-                ImageBrush img = new ImageBrush();
-                timetableBackgroundImg.ImageSource = new BitmapImage(new Uri(timetableUri));
-            }
+            img.UriSource = new Uri(timetableUri);
+            timetableBackgroundImg.ImageSource = img;
         }
 
         private async void IniList(bool IsRefresh)

@@ -44,7 +44,7 @@ namespace Fzuhelper.Views
                 case "ms-appx:///Assets/Timetable_Background_02.jpg":
                     selectedIndex = 1;
                     break;
-                case "white":
+                case "ms-appx:///Assets/Timetable_Background_03.jpg":
                     selectedIndex = 2;
                     break;
                 default:
@@ -65,7 +65,7 @@ namespace Fzuhelper.Views
                     localSettings.Values["timetable_background"] = "ms-appx:///Assets/Timetable_Background_02.jpg";
                     break;
                 case 2:
-                    localSettings.Values["timetable_background"] = "white";
+                    localSettings.Values["timetable_background"] = "ms-appx:///Assets/Timetable_Background_03.jpg";
                     break;
                 default:
                     break;

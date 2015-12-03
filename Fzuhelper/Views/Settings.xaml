@@ -40,8 +40,8 @@
             <GridViewItem>
                 <Image Source="/Assets/Timetable_Background_02.jpg" Stretch="Uniform"/>
             </GridViewItem>
-            <GridViewItem Background="White">
-                
+            <GridViewItem>
+                <Image Source="/Assets/Timetable_Background_03.jpg" Stretch="Uniform"/>
             </GridViewItem>
         </GridView>
     </Grid>

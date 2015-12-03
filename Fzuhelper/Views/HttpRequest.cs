@@ -163,7 +163,10 @@ namespace Fzuhelper.Views
                 {
                     jsonData = await HttpRequest.GetFromJwch("get", "getExamRoom", content,true);
                 }
-                //System.Diagnostics.Debug.WriteLine(examArr.ElementAt<Dictionary<string,string>>(0)["courseName"]);
+                if (jsonData == "error")
+                {
+                    return jsonData;
+                }
                 try
                 {
                     //Save as file
@@ -174,22 +177,11 @@ namespace Fzuhelper.Views
                 {
 
                 }
-                //getAgain = true;
                 return jsonData;
             }
             catch
             {
-                /*if (getAgain)
-                {
-                    //getAgain = !getAgain;
-                    await ReLogin();
-                    await GetExamRoom();
-                }
-                else
-                {
-                    MainPage.SendToast("网络错误");
-                }*/
-                return "";
+                return "error";
             }
         }
 
@@ -211,7 +203,10 @@ namespace Fzuhelper.Views
                 {
                     jsonData = await HttpRequest.GetFromJwch("get", "getScore", content, true);
                 }
-                //System.Diagnostics.Debug.WriteLine(examArr.ElementAt<Dictionary<string,string>>(0)["courseName"]);
+                if (jsonData == "error")
+                {
+                    return jsonData;
+                }
                 try
                 {
                     //Save as file
@@ -222,22 +217,11 @@ namespace Fzuhelper.Views
                 {
 
                 }
-                //getAgain = true;
                 return jsonData;
             }
             catch
             {
-                /*if (getAgain)
-                {
-                    getAgain = !getAgain;
-                    await HttpRequest.ReLogin();
-                    await GetScore();
-                }
-                else
-                {
-                    MainPage.SendToast("网络错误");
-                }*/
-                return "";
+                return "error";
             }
         }
 
@@ -255,7 +239,10 @@ namespace Fzuhelper.Views
                 //Get data
                 HttpFormUrlEncodedContent content = new HttpFormUrlEncodedContent(new[] { new KeyValuePair<string, string>("token", gradePointToken), new KeyValuePair<string, string>("year", year), new KeyValuePair<string, string>("term", term), new KeyValuePair<string, string>("sn", sn) });
                 jsonData = await HttpRequest.GetFromJwch("get", "getGradePoint", content);
-                //System.Diagnostics.Debug.WriteLine(examArr.ElementAt<Dictionary<string,string>>(0)["courseName"]);
+                if (jsonData == "error")
+                {
+                    return jsonData;
+                }
                 try
                 {
                     //Save as file
@@ -270,7 +257,7 @@ namespace Fzuhelper.Views
             }
             catch
             {
-                return "";
+                return "error";
             }
         }
 
@@ -288,7 +275,10 @@ namespace Fzuhelper.Views
                 //Get data
                 HttpFormUrlEncodedContent content = new HttpFormUrlEncodedContent(new[] { new KeyValuePair<string, string>("stunum", stunum) });
                 jsonData = await HttpRequest.GetFromJwch("get", "getTimetable", content);
-                //System.Diagnostics.Debug.WriteLine(examArr.ElementAt<Dictionary<string,string>>(0)["courseName"]);
+                if(jsonData == "error")
+                {
+                    return jsonData;
+                }
                 try
                 {
                     //Save as file
@@ -299,22 +289,11 @@ namespace Fzuhelper.Views
                 {
 
                 }
-                //getAgain = true;
                 return jsonData;
             }
             catch
             {
-                /*if (getAgain)
-                {
-                    getAgain = !getAgain;
-                    await HttpRequest.ReLogin();
-                    await GetTimetable();
-                }
-                else
-                {
-                    MainPage.SendToast("网络错误");
-                }*/
-                return "";
+                return "error";
             }
         }
 

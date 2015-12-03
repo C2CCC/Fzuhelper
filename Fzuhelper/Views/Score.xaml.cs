@@ -44,7 +44,7 @@ namespace Fzuhelper.Views
     {
         //private StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
 
-        private static bool initialAgain = true;
+        //private static bool initialAgain = true;
 
         private string jsonData;
 
@@ -69,6 +69,63 @@ namespace Fzuhelper.Views
 
         private async void IniList(bool IsRefresh)
         {
+            refreshIndicator.IsActive = true;
+            if (!IsRefresh)
+            {
+                try
+                {
+                    //Get data from storage
+                    StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
+                    StorageFile score = await fzuhelperDataFolder.GetFileAsync("score.dat");
+                    jsonData = await FileIO.ReadTextAsync(score);
+                }
+                catch
+                {
+                    MainPage.SendToast("获取数据出错，请刷新");
+                    return;
+                }
+            }
+            else
+            {
+                try
+                {
+                    jsonData = await HttpRequest.GetScore();
+                    if (jsonData == "error")
+                    {
+                        MainPage.SendToast("获取数据出错");
+                        return;
+                    }
+                }
+                catch
+                {
+                    MainPage.SendToast("获取数据出错");
+                    return;
+                }
+            }
+            try
+            {
+                srv = JsonConvert.DeserializeObject<ScoreReturnValue>(jsonData);
+                markArr = JsonConvert.DeserializeObject<List<ScoreArr>>(srv.data["markArr"].ToString());
+                Groups = CreateGroups();
+                cvsGroups.Source = Groups;
+                listViewZoomOutView.ItemsSource = cvsGroups.View.CollectionGroups;
+                GetAllGradePoint(IsRefresh);
+                //Unknown error, just login again
+                if (markArr.Count == 0)
+                {
+                    await HttpRequest.ReLogin();
+                    IniList(true);
+                }
+            }
+            catch
+            {
+                MainPage.SendToast("获取数据出错，请刷新");
+            }
+            refreshIndicator.IsActive = false;
+        }
+
+        /*private async void IniList(bool IsRefresh)
+        {
             bool ir = IsRefresh;
             try
             {
@@ -87,6 +144,11 @@ namespace Fzuhelper.Views
                 listViewZoomOutView.ItemsSource = cvsGroups.View.CollectionGroups;
                 GetAllGradePoint(IsRefresh);
                 refreshIndicator.IsActive = false;
+                if (markArr.Count == 0)
+                {
+                    await HttpRequest.ReLogin();
+                    IniList(true);
+                }
             }
             catch
             {
@@ -104,7 +166,7 @@ namespace Fzuhelper.Views
                 }
                 return;
             }
-        }
+        }*/
 
         private async void GetAllGradePoint(bool IsRefresh)
         {
@@ -151,7 +213,7 @@ namespace Fzuhelper.Views
                 }
                 catch
                 {
-
+                    MainPage.SendToast(year + term + "绩点更新失败");
                 }
             }
             gradePointListView.ItemsSource = gradePointArr;
@@ -220,11 +282,8 @@ namespace Fzuhelper.Views
             }
         }
 
-        private async void refreshScore_Click(object sender, RoutedEventArgs e)
+        private void refreshScore_Click(object sender, RoutedEventArgs e)
         {
-            refreshIndicator.IsActive = true;
-            await HttpRequest.GetScore();
-            refreshIndicator.IsActive = false;
             IniList(true);
         }
 

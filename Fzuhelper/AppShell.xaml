@@ -60,24 +60,6 @@
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
-            <VisualStateGroup>
-                <VisualState x:Name="wideState">
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="641"/>
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="headerFillRect.Visibility" Value="Visible"/>
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState x:Name="narrowState">
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="0"/>
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="userInfoHeader.Margin" Value="0,48,0,0"/>
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
 
@@ -94,7 +76,7 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <StackPanel x:Name="userInfoHeader" Grid.Row="0" Margin="0,0,0,0">
-                        <Rectangle x:Name="headerFillRect" Visibility="Collapsed" Height="48" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="{ThemeResource TitleBarBackgroundThemeBrush}"/>
+                        <Rectangle x:Name="headerFillRect" Height="48" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="{ThemeResource TitleBarBackgroundThemeBrush}"/>
                         <TextBlock x:Name="userName" FontSize="24" Margin="50 10 0 10"/>
                         <TextBlock x:Name="weekTime" Margin="50 10 0 5"/>
                         <TextBlock x:Name="termTime" Margin="50 5 0 10"/>

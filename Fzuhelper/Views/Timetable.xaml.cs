@@ -31,7 +31,7 @@ namespace Fzuhelper.Views
     {
         //private StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
 
-        private static bool initialAgain = true;
+        //private static bool initialAgain = true;
 
         private string jsonData;
 
@@ -72,10 +72,62 @@ namespace Fzuhelper.Views
         public Timetable()
         {
             this.InitializeComponent();
-            IniList();
+
+            IniList(false);
         }
 
-        private async void IniList()
+        private async void IniList(bool IsRefresh)
+        {
+            refreshIndicator.IsActive = true;
+            if (!IsRefresh)
+            {
+                try
+                {
+                    //Get data from storage
+                    StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
+                    StorageFile timetable = await fzuhelperDataFolder.GetFileAsync("timetable.dat");
+                    jsonData = await FileIO.ReadTextAsync(timetable);
+                }
+                catch
+                {
+                    MainPage.SendToast("获取数据出错，请刷新");
+                    return;
+                }
+            }
+            else
+            {
+                try
+                {
+                    jsonData = await HttpRequest.GetTimetable();
+                    if(jsonData == "error")
+                    {
+                        MainPage.SendToast("获取数据出错");
+                        return;
+                    }
+                }
+                catch
+                {
+                    MainPage.SendToast("获取数据出错");
+                    return;
+                }
+            }
+            try
+            {
+                ttrv = JsonConvert.DeserializeObject<TimetableReturnValue>(jsonData);
+                //A list of every week courses ,and the first item is current week courses
+                tableInfo = JsonConvert.DeserializeObject<List<TableInfoArr>>(ttrv.data["tableInfo"].ToString());
+                currentWeek = tableInfo[0].week;
+                ShowOneWeekCourse(0);
+                IniWeekOption();
+            }
+            catch
+            {
+                MainPage.SendToast("获取数据出错，请刷新");
+            }
+            refreshIndicator.IsActive = false;
+        }
+
+        /*private async void IniList()
         {
             try
             {
@@ -86,9 +138,8 @@ namespace Fzuhelper.Views
                 jsonData = await FileIO.ReadTextAsync(timetable);
                 //System.Diagnostics.Debug.WriteLine(jsonData);
                 ttrv = JsonConvert.DeserializeObject<TimetableReturnValue>(jsonData);
-                //System.Diagnostics.Debug.WriteLine(srv.data["markArr"]);
 
-                //A list of every week courses ,and the first item is the current week courses
+                //A list of every week courses ,and the first item is current week courses
                 tableInfo = JsonConvert.DeserializeObject<List<TableInfoArr>>(ttrv.data["tableInfo"].ToString());
                 currentWeek = tableInfo[0].week;
                 ShowOneWeekCourse(0);
@@ -112,7 +163,7 @@ namespace Fzuhelper.Views
                 }
                 return;
             }
-        }
+        }*/
 
         private void ShowOneWeekCourse(int week)
         {
@@ -368,12 +419,9 @@ namespace Fzuhelper.Views
             }
         }
 
-        private async void refreshTimetable_Click(object sender, RoutedEventArgs e)
+        private void refreshTimetable_Click(object sender, RoutedEventArgs e)
         {
-            refreshIndicator.IsActive = true;
-            await HttpRequest.GetTimetable();
-            refreshIndicator.IsActive = false;
-            IniList();
+            IniList(true);
         }
 
         private void SingleCourse_Click(object sender, RoutedEventArgs e)

@@ -114,6 +114,7 @@ namespace Fzuhelper
 
             //Update login state
             localSettings.Values["IsLogedIn"] = true;
+            httpClient.Dispose();
         }
 
         private async void DirectToIndex(string response)

@@ -371,33 +371,6 @@ namespace Fzuhelper
         private async void logOut_ItemClick(object sender, ItemClickEventArgs e)
         {
             localSettings.Values["IsLogedIn"] = false;
-            /*try
-            {
-                StorageFile timetable = await fzuhelperDataFolder.GetFileAsync("timetable.dat");
-                await timetable.DeleteAsync();
-            }
-            catch
-            {
-
-            }
-            try
-            {
-                StorageFile score = await fzuhelperDataFolder.GetFileAsync("score.dat");
-                await score.DeleteAsync();
-            }
-            catch
-            {
-
-            }
-            try
-            {
-                StorageFile examroom = await fzuhelperDataFolder.GetFileAsync("examRoom.dat");
-                await examroom.DeleteAsync();
-            }
-            catch
-            {
-
-            }*/
             try
             {
                 StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");

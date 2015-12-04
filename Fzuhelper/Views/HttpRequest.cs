@@ -238,7 +238,23 @@ namespace Fzuhelper.Views
                 string sn = (await FileIO.ReadTextAsync(accInfo)).Split('\n')[0];
                 //Get data
                 HttpFormUrlEncodedContent content = new HttpFormUrlEncodedContent(new[] { new KeyValuePair<string, string>("token", gradePointToken), new KeyValuePair<string, string>("year", year), new KeyValuePair<string, string>("term", term), new KeyValuePair<string, string>("sn", sn) });
-                jsonData = await HttpRequest.GetFromJwch("get", "getGradePoint", content);
+                string reg = "false";
+                for (int i = 0; i < 10; i++)
+                {
+                    jsonData = await HttpRequest.GetFromJwch("get", "getGradePoint", content);
+                    try
+                    {
+                        Match mt = Regex.Match(jsonData, reg);
+                        if (!mt.Success)
+                        {
+                            break;
+                        }
+                    }
+                    catch
+                    {
+
+                    }
+                }
                 if (jsonData == "error")
                 {
                     return jsonData;

@@ -71,6 +71,12 @@ namespace Fzuhelper
                 },
                 new NavMenuItem()
                 {
+                    Symbol = Symbol.Permissions,
+                    Label = "一键评议",
+                    DestPage = typeof(OneKey)
+                },
+                new NavMenuItem()
+                {
                     Symbol = Symbol.Volume,
                     Label = "教务处通知",
                     DestPage = typeof(JwchNotice)

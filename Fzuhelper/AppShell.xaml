@@ -76,16 +76,19 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <StackPanel x:Name="userInfoHeader" Grid.Row="0" Margin="0,0,0,0">
+                        <StackPanel.Background>
+                            <ImageBrush ImageSource="/Assets/Nav_Header_Background.png" Opacity="0.6" Stretch="UniformToFill"/>
+                        </StackPanel.Background>
                         <Rectangle x:Name="headerFillRect" Height="48" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="{ThemeResource TitleBarBackgroundThemeBrush}"/>
                         <TextBlock x:Name="userName" FontSize="24" Margin="50 15 0 10"/>
                         <TextBlock x:Name="weekTime" Margin="50 10 0 5"/>
-                        <TextBlock x:Name="termTime" Margin="50 5 0 0"/>
+                        <TextBlock x:Name="termTime" Margin="50 5 0 10"/>
                     </StackPanel>
                 <!-- A custom ListView to display the items in the pane.  The automation Name is set in the ContainerContentChanging event. -->
                 <controls:NavMenuListView x:Name="NavMenuList"
                                           Grid.Row="1"
                                           TabIndex="3"
-                                          Margin="0,24,0,0"
+                                          Margin="0,10,0,0"
                                           ContainerContentChanging="NavMenuItemContainerContentChanging"
                                           ItemContainerStyle="{StaticResource NavMenuItemContainerStyle}"
                                           ItemTemplate="{StaticResource NavMenuItemTemplate}"

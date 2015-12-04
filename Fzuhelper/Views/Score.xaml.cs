@@ -224,7 +224,10 @@ namespace Fzuhelper.Views
                 }
                 catch
                 {
-                    MainPage.SendToast(year + term + "绩点更新失败");
+                    if (IsRefresh)
+                    {
+                        MainPage.SendToast(year + term + "绩点更新失败");
+                    }
                 }
             }
             gradePointListView.ItemsSource = gradePointArr;

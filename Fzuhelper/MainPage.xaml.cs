@@ -42,6 +42,27 @@ namespace Fzuhelper
         public MainPage()
         {
             this.InitializeComponent();
+
+            CheckFolder();
+        }
+
+        private async void CheckFolder()
+        {
+            try
+            {
+                StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
+            }
+            catch
+            {
+                try
+                {
+                    StorageFolder createFzuhelperDataFolder = await localFolder.CreateFolderAsync("FzuhelperData", CreationCollisionOption.ReplaceExisting);
+                }
+                catch
+                {
+
+                }
+            }
         }
 
         private void loginBtn_Click(object sender, RoutedEventArgs e)
@@ -136,17 +157,7 @@ namespace Fzuhelper
                 }
                 catch
                 {
-                    try
-                    {
-                        StorageFolder createFzuhelperDataFolder = await localFolder.CreateFolderAsync("FzuhelperData", CreationCollisionOption.ReplaceExisting);
-                        StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
-                        StorageFile usrInfo = await fzuhelperDataFolder.CreateFileAsync("usrInfo.dat", CreationCollisionOption.ReplaceExisting);
-                        await FileIO.WriteTextAsync(usrInfo, l.data["stuname"] + "\n" + l.data["token"]);
-                    }
-                    catch
-                    {
-
-                    }
+                    
                 }
                 localSettings.Values["stuname"] = l.data["stuname"];
                 Frame.Navigate(typeof(AppShell));

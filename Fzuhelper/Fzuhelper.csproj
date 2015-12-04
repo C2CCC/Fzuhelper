@@ -145,6 +145,7 @@
     <None Include="Fzuhelper_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\Logo.png" />
     <Content Include="Assets\Timetable_Background_01.jpg" />
     <Content Include="Assets\Timetable_Background_02.jpg" />
     <Content Include="Assets\Timetable_Background_03.jpg" />

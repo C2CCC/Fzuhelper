@@ -107,5 +107,12 @@ namespace Fzuhelper.Views
             public string amount { get; set; }
         }
 
+        private void bookName_KeyUp(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Key == Windows.System.VirtualKey.Enter)
+            {
+                bookSearch_Click(new object(), new RoutedEventArgs());
+            }
+        }
     }
 }

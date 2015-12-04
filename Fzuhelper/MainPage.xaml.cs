@@ -191,5 +191,13 @@ namespace Fzuhelper
             ToastNotification toast = new ToastNotification(toastXml);
             ToastNotificationManager.CreateToastNotifier().Show(toast);
         }
+
+        private void password_KeyUp(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Key == Windows.System.VirtualKey.Enter)
+            {
+                loginBtn_Click(new object(), new RoutedEventArgs());
+            }
+        }
     }
 }

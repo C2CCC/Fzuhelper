@@ -110,45 +110,6 @@ namespace Fzuhelper.Views
             refreshIndicator.IsActive = false;
         }
 
-        /*private async void IniList()
-        {
-            try
-            {
-                refreshIndicator.IsActive = true;
-                //Get data from storage
-                StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
-                StorageFile examRoom = await fzuhelperDataFolder.GetFileAsync("examRoom.dat");
-                jsonData = await FileIO.ReadTextAsync(examRoom);
-                initialAgain = true;
-                errv = JsonConvert.DeserializeObject<ExamRoomReturnValue>(jsonData);
-                //System.Diagnostics.Debug.WriteLine(errv.data["stuname"]);
-                examArr = JsonConvert.DeserializeObject<List<ExamRoomArr>>(errv.data["examArr"].ToString());
-                listView.ItemsSource = examArr;
-                refreshIndicator.IsActive = false;
-                if (examArr.Count() == 0)
-                {
-                    await HttpRequest.ReLogin();
-                    IniList();
-                }
-            }
-            catch
-            {
-                refreshIndicator.IsActive = false;
-                if (initialAgain)
-                {
-                    refreshIndicator.IsActive = true;
-                    initialAgain = !initialAgain;
-                    jsonData = await HttpRequest.GetExamRoom();
-                    IniList();
-                }
-                else
-                {
-                    //MainPage.SendToast("无法获取列表");
-                }
-                return;
-            }
-        }*/
-
         private class ExamRoomReturnValue
         {
             public bool status { get; set; }

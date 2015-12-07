@@ -85,11 +85,14 @@ namespace Fzuhelper.Views
                 //Check if the return data is correct
                 try
                 {
-                    CheckJwch c = JsonConvert.DeserializeObject<CheckJwch>(httpResponseBody);
-                    if(c.errMsg!= "" && c.errMsg != null && tokenRequire)
+                    if (tokenRequire)
                     {
-                        await ReLogin();
-                        return "relogin";
+                        CheckJwch c = JsonConvert.DeserializeObject<CheckJwch>(httpResponseBody);
+                        if (c.errMsg != "" && c.errMsg != null)
+                        {
+                            await ReLogin();
+                            return "relogin";
+                        }
                     }
                     return httpResponseBody;
                 }
@@ -107,6 +110,7 @@ namespace Fzuhelper.Views
 
         public static async Task ReLogin()
         {
+            await Task.Delay(300);
             try
             {
                 //Get accInfo
@@ -241,6 +245,7 @@ namespace Fzuhelper.Views
                 string reg = "false";
                 for (int i = 0; i < 10; i++)
                 {
+                    await Task.Delay(300);
                     jsonData = await HttpRequest.GetFromJwch("get", "getGradePoint", content);
                     try
                     {

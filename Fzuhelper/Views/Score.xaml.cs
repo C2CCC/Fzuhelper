@@ -135,6 +135,50 @@ namespace Fzuhelper.Views
             refreshIndicator.IsActive = false;
         }
 
+        /*private async void IniList(bool IsRefresh)
+        {
+            bool ir = IsRefresh;
+            try
+            {
+                refreshIndicator.IsActive = true;
+                //Get data from storage
+                StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
+                StorageFile score = await fzuhelperDataFolder.GetFileAsync("score.dat");
+                jsonData = await FileIO.ReadTextAsync(score);
+                //System.Diagnostics.Debug.WriteLine(jsonData);
+                initialAgain = true;
+                srv = JsonConvert.DeserializeObject<ScoreReturnValue>(jsonData);
+                //System.Diagnostics.Debug.WriteLine(srv.data["markArr"]);
+                markArr = JsonConvert.DeserializeObject<List<ScoreArr>>(srv.data["markArr"].ToString());
+                Groups = CreateGroups();
+                cvsGroups.Source = Groups;
+                listViewZoomOutView.ItemsSource = cvsGroups.View.CollectionGroups;
+                GetAllGradePoint(IsRefresh);
+                refreshIndicator.IsActive = false;
+                if (markArr.Count == 0)
+                {
+                    await HttpRequest.ReLogin();
+                    IniList(true);
+                }
+            }
+            catch
+            {
+                refreshIndicator.IsActive = false;
+                if (initialAgain)
+                {
+                    refreshIndicator.IsActive = true;
+                    initialAgain = !initialAgain;
+                    await HttpRequest.GetScore();
+                    IniList(ir);
+                }
+                else
+                {
+                    //MainPage.SendToast("无法获取列表");
+                }
+                return;
+            }
+        }*/
+
         private async void GetAllGradePoint(bool IsRefresh)
         {
             gradePointListView.ItemsSource = null;

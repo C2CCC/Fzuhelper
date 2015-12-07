@@ -151,6 +151,44 @@ namespace Fzuhelper.Views
             refreshIndicator.IsActive = false;
         }
 
+        /*private async void IniList()
+        {
+            try
+            {
+                refreshIndicator.IsActive = true;
+                //Get data from storage
+                StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
+                StorageFile timetable = await fzuhelperDataFolder.GetFileAsync("timetable.dat");
+                jsonData = await FileIO.ReadTextAsync(timetable);
+                //System.Diagnostics.Debug.WriteLine(jsonData);
+                ttrv = JsonConvert.DeserializeObject<TimetableReturnValue>(jsonData);
+
+                //A list of every week courses ,and the first item is current week courses
+                tableInfo = JsonConvert.DeserializeObject<List<TableInfoArr>>(ttrv.data["tableInfo"].ToString());
+                currentWeek = tableInfo[0].week;
+                ShowOneWeekCourse(0);
+                IniWeekOption();
+                initialAgain = true;
+                refreshIndicator.IsActive = false;
+            }
+            catch
+            {
+                refreshIndicator.IsActive = false;
+                if (initialAgain)
+                {
+                    refreshIndicator.IsActive = true;
+                    initialAgain = !initialAgain;
+                    await HttpRequest.GetTimetable();
+                    IniList();
+                }
+                else
+                {
+                    //MainPage.SendToast("无法获取列表");
+                }
+                return;
+            }
+        }*/
+
         private void ShowOneWeekCourse(int week)
         {
             //System.Diagnostics.Debug.WriteLine(timeTableMain.Children.Count);

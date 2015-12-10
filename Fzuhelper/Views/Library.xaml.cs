@@ -32,6 +32,8 @@ namespace Fzuhelper.Views
 
         private BookSearchResult b = new BookSearchResult();
 
+        private BookSearchResult l = new BookSearchResult();
+
         public Library()
         {
             this.InitializeComponent();
@@ -40,37 +42,61 @@ namespace Fzuhelper.Views
         private async void bookSearch_Click(object sender, RoutedEventArgs e)
         {
             refreshIndicator.IsActive = true;
+            bool flag;
             page = 1;
             key = bookName.Text;
             jsonData = await HttpRequest.GetBookSearchResult(key, page.ToString());
-            ShowResult(false);
-            loadMore.Content = "加载更多";
-            loadMore.IsEnabled = true;
-            loadMore.Visibility = Visibility.Visible;
+            flag = ShowResult(false);
+            if (flag)
+            {
+                loadMore.Content = "加载更多";
+                loadMore.IsEnabled = true;
+                loadMore.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                loadMore.Visibility = Visibility.Collapsed;
+            }
             refreshIndicator.IsActive = false;
         }
 
-        private void ShowResult(bool IsNextPage)
+        private bool ShowResult(bool IsNextPage)
         {
             if (!IsNextPage)
             {
                 bookSearchResult.ItemsSource = null;
-                b = JsonConvert.DeserializeObject<BookSearchResult>(jsonData);
+                try
+                {
+                    b = JsonConvert.DeserializeObject<BookSearchResult>(jsonData);
+                }
+                catch
+                {
+                    return false;
+                }
             }
-            if(b.errMsg== "图书馆请求信息失败")
+            if(b.errMsg == "图书馆请求信息失败")
             {
                 MainPage.SendToast(b.errMsg);
-                return;
+                return false;
             }
             bookSearchResult.ItemsSource = b.data;
             page++;
+            return true;
         }
 
         private async void loadMore_Click(object sender, RoutedEventArgs e)
         {
             refreshIndicator.IsActive = true;
             jsonData = await HttpRequest.GetBookSearchResult(key, page.ToString());
-            BookSearchResult l = JsonConvert.DeserializeObject<BookSearchResult>(jsonData);
+            try
+            {
+                l = JsonConvert.DeserializeObject<BookSearchResult>(jsonData);
+            }
+            catch
+            {
+                refreshIndicator.IsActive = false;
+                return;
+            }
             b.errMsg = l.errMsg;
             if (b.errMsg == "图书馆请求信息失败")
             {

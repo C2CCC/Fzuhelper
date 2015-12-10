@@ -110,7 +110,6 @@ namespace Fzuhelper.Views
 
         public static async Task ReLogin()
         {
-            await Task.Delay(300);
             try
             {
                 //Get accInfo
@@ -130,6 +129,10 @@ namespace Fzuhelper.Views
                 try
                 {
                     response = await GetFromJwch("post", "Login", content);
+                    if (response == "error")
+                    {
+                        return;
+                    }
                 }
                 catch
                 {
@@ -413,8 +416,8 @@ namespace Fzuhelper.Views
             //string regexStr = @"\d{4}\w{2}\d{2}\w{2}";
             string term = "";
             string url = "http://59.77.226.32/tt.asp";
-            try
-            {
+            //try
+            //{
                 WebRequest request = WebRequest.Create(url);
                 WebResponse response = request.GetResponseAsync().Result;
                 StreamReader reader = new StreamReader(response.GetResponseStream());
@@ -438,11 +441,11 @@ namespace Fzuhelper.Views
 
                 }
                 return term;
-            }
-            catch
+            //}
+            /*catch
             {
                 return "";
-            }
+            }*/
         }
 
         public static async Task<string> TryGetWeek()
@@ -472,8 +475,8 @@ namespace Fzuhelper.Views
         public static async Task<string> GetCurrentWeek()
         {
             string jsonData = "";
-            try
-            {
+            //try
+            //{
                 //Get data
                 HttpFormUrlEncodedContent content = new HttpFormUrlEncodedContent(new[] { new KeyValuePair<string, string>("","") });
                 jsonData = await HttpRequest.GetFromJwch("get", "getCurrentWeek", content);
@@ -491,11 +494,11 @@ namespace Fzuhelper.Views
 
                 }
                 return jsonData;
-            }
-            catch
+            //}
+            /*catch
             {
                 return "";
-            }
+            }*/
         }
 
 

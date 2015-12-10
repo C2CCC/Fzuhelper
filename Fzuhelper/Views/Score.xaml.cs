@@ -44,7 +44,7 @@ namespace Fzuhelper.Views
     {
         //private StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
 
-        //private static bool initialAgain = true;
+        private static bool getAgain = true;
 
         private static bool firstTimeLoad = true;
 
@@ -122,14 +122,16 @@ namespace Fzuhelper.Views
                 listViewZoomOutView.ItemsSource = cvsGroups.View.CollectionGroups;
                 GetAllGradePoint(IsRefresh);
                 //Unknown error, just login again
-                if (markArr.Count == 0)
+                if (markArr.Count == 0 && getAgain)
                 {
+                    getAgain = false;
                     await HttpRequest.ReLogin();
                     IniList(true);
                 }
             }
             catch
             {
+                getAgain = true;
                 MainPage.SendToast("获取数据出错，请刷新");
             }
             refreshIndicator.IsActive = false;

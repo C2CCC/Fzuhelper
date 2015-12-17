@@ -126,6 +126,7 @@
     <Compile Include="Views\ExamRoom.xaml.cs">
       <DependentUpon>ExamRoom.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\MockJwch.cs" />
     <Compile Include="Views\HttpRequest.cs" />
     <Compile Include="Views\JwchNotice.xaml.cs">
       <DependentUpon>JwchNotice.xaml</DependentUpon>

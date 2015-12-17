@@ -19,6 +19,7 @@ using Windows.Web.Http;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Text;
 using Windows.UI;
+using System.Text.RegularExpressions;
 
 // “空白页”项模板在 http://go.microsoft.com/fwlink/?LinkId=234238 上提供
 
@@ -81,7 +82,54 @@ namespace Fzuhelper.Views
 
             SetTimetableBackground();
 
-            IniList(false);
+            //IniList(false);
+
+            InitTimetable();
+        }
+
+        private async void InitTimetable()
+        {
+            await MockGet();
+
+            await FormatTimetable();
+        }
+
+        private async Task MockGet()
+        {
+            try
+            {
+                await MockJwch.MockGetTimetable();
+            }
+            catch
+            {
+                MainPage.SendToast("获取课表失败");
+            }
+        }
+
+        private async Task FormatTimetable()
+        {
+            try
+            {
+                //Get data from storage
+                StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
+                StorageFile timetable = await fzuhelperDataFolder.GetFileAsync("timetable.dat");
+                string htmlStr = await FileIO.ReadTextAsync(timetable);
+
+                //Simplify htmlStr
+                string simplifyRegex = @"星期日.*备注";
+                Match simplifyMatch = Regex.Match(htmlStr, simplifyRegex);
+                string simplifiedStr = simplifyMatch.Value;
+
+                //Start regex match
+                string regexStr = @"<td((?!上午)(?!下午)(?!晚上)(?!\d{1,2}\:\d\d).)*?</td>";
+                MatchCollection jies = Regex.Matches(simplifiedStr, regexStr);
+                
+                System.Diagnostics.Debug.WriteLine(jies.Count);
+            }
+            catch
+            {
+
+            }
         }
 
         private void SetTimetableBackground()

@@ -13,7 +13,6 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Windows.Web.Http;
 using Windows.Storage;
 using Windows.UI.Notifications;
 using Windows.Data.Xml.Dom;
@@ -21,6 +20,8 @@ using Newtonsoft.Json;
 using System.Threading.Tasks;
 using System.Net;
 using System.Text.RegularExpressions;
+using System.Net.Http;
+using Fzuhelper.Views;
 
 //“空白页”项模板在 http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409 上有介绍
 
@@ -37,7 +38,7 @@ namespace Fzuhelper
 
         private ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
 
-        public LogInReturnValue l = new LogInReturnValue();
+        //public LogInReturnValue l = new LogInReturnValue();
 
         public MainPage()
         {
@@ -65,7 +66,7 @@ namespace Fzuhelper
             }
         }
 
-        private void loginBtn_Click(object sender, RoutedEventArgs e)
+        private async void loginBtn_Click(object sender, RoutedEventArgs e)
         {
             //Check not null
             if (username.Text == "" || password.Password == "")
@@ -77,11 +78,29 @@ namespace Fzuhelper
             //Get usr and pwd
             string stunum = username.Text,
                 passwd = password.Password;
+            localSettings.Values["muser"] = stunum;
+            localSettings.Values["passwd"] = passwd;
+            /*
             //base64 for pwd
             byte[] bytes = Encoding.UTF8.GetBytes(passwd);
             passwd = Convert.ToBase64String(bytes);
             LogInVerification(stunum,passwd);
+            */
+            bool loginCheck;
+            toggleLoginState();
+            loginCheck = await MockJwch.MockLogin();
+            toggleLoginState();
+            if (loginCheck)
+            {
+                Frame.Navigate(typeof(AppShell));
+            }
+            else
+            {
+
+            }
         }
+
+
 
         private void toggleLoginState()
         {
@@ -91,20 +110,20 @@ namespace Fzuhelper
             loginBtn.IsEnabled = !loginBtn.IsEnabled;
         }
 
-        private async void LogInVerification(string stunum,string passwd)
+        /*private async void LogInVerification(string stunum, string passwd)
         {
             toggleLoginState();
             //post to verify
             HttpClient httpClient = new HttpClient();
             Uri requestUri = new Uri("http://219.229.132.35/api/api.php/Jwch/login.html");
 
-            HttpFormUrlEncodedContent content = new HttpFormUrlEncodedContent(
+            FormUrlEncodedContent content = new FormUrlEncodedContent(
                 new[]
                 {
                     new KeyValuePair<string,string>("stunum",stunum),
                     new KeyValuePair<string,string>("passwd",passwd),
                 });
-            
+
 
             HttpResponseMessage httpResponse = new HttpResponseMessage();
             string httpResponseBody = "";
@@ -118,20 +137,20 @@ namespace Fzuhelper
             {
                 SendToast("网络错误");
                 toggleLoginState();
-                return ;
+                return;
             }
             DirectToIndex(httpResponseBody);
             //System.Diagnostics.Debug.WriteLine(httpResponseBody);
 
             //Create local storage
-            /*  
-                stunum
-                passwd
+              
+            //    stunum
+            //    passwd
             
-            */
+            
             StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
             StorageFile accInfo = await fzuhelperDataFolder.CreateFileAsync("accInfo.dat", CreationCollisionOption.ReplaceExisting);
-            await FileIO.WriteTextAsync(accInfo, stunum+"\n"+passwd);
+            await FileIO.WriteTextAsync(accInfo, stunum + "\n" + passwd);
 
             //Update login state
             localSettings.Values["IsLogedIn"] = true;
@@ -147,17 +166,17 @@ namespace Fzuhelper
                 //Store token etc.
                 try
                 {
-                    /*
-                        stuname
-                        token
-                    */
+                    
+               //         stuname
+               //         token
+                    
                     StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
                     StorageFile usrInfo = await fzuhelperDataFolder.CreateFileAsync("usrInfo.dat", CreationCollisionOption.ReplaceExisting);
                     await FileIO.WriteTextAsync(usrInfo, l.data["stuname"] + "\n" + l.data["token"]);
                 }
                 catch
                 {
-                    
+
                 }
                 localSettings.Values["stuname"] = l.data["stuname"];
                 Frame.Navigate(typeof(AppShell));
@@ -170,7 +189,7 @@ namespace Fzuhelper
             }
         }
 
-            
+
 
 
         public class LogInReturnValue
@@ -179,8 +198,8 @@ namespace Fzuhelper
 
             public string errMsg { get; set; }
 
-            public Dictionary<string,string> data { get; set; }
-        }
+            public Dictionary<string, string> data { get; set; }
+        }*/
 
         public static void SendToast(string content)
         {

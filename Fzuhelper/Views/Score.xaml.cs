@@ -14,9 +14,11 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Newtonsoft.Json;
+using HtmlAgilityPack;
 using System.Threading.Tasks;
 using Windows.Web.Http;
 using System.Collections.ObjectModel;
+using System.Text.RegularExpressions;
 
 // “空白页”项模板在 http://go.microsoft.com/fwlink/?LinkId=234238 上提供
 
@@ -44,11 +46,15 @@ namespace Fzuhelper.Views
     {
         //private StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
 
+        private ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
+
         private static bool getAgain = true;
 
         private static bool firstTimeLoad = true;
 
         private string jsonData;
+
+        private string htmlStr;
 
         private ScoreReturnValue srv;
 
@@ -66,10 +72,97 @@ namespace Fzuhelper.Views
         {
             this.InitializeComponent();
 
-            IniList(false);
+            //IniList(false);
+
+            InitScore(false);
         }
 
-        private async void IniList(bool IsRefresh)
+        private async void InitScore(bool IsRefresh)
+        {
+            refreshIndicator.IsActive = true;
+
+            await MockGet(IsRefresh);
+
+            FormatScore();
+
+            refreshIndicator.IsActive = false;
+        }
+
+        private async Task MockGet(bool IsRefresh)
+        {
+            if (IsRefresh)
+            {
+                try
+                {
+                    await MockJwch.MockGetScore();
+                }
+                catch
+                {
+                    MainPage.SendToast("获取成绩失败");
+                }
+            }
+            else
+            {
+                try
+                {
+                    //Get data from storage
+                    StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
+                    StorageFile score = await fzuhelperDataFolder.GetFileAsync("score.dat");
+                    htmlStr = await FileIO.ReadTextAsync(score);
+                }
+                catch
+                {
+                    try
+                    {
+                        await MockJwch.MockGetScore();
+                        await MockGet(false);
+                    }
+                    catch
+                    {
+                        MainPage.SendToast("获取成绩失败");
+                    }
+                }
+            }
+        }
+
+        private void FormatScore()
+        {
+            try
+            {
+                HtmlDocument doc = new HtmlDocument();
+                doc.LoadHtml(htmlStr);
+                HtmlNode scoreTableNode = doc.GetElementbyId("ContentPlaceHolder1_DataList_xxk");
+                HtmlNodeCollection trs = scoreTableNode.ChildNodes;
+            }
+            catch
+            {
+
+            }
+        }
+
+        /*private void FormatScore()
+        {
+            try
+            {
+                //Simplify htmlStr
+                string simplifyRegex = @"考试时间地点(.|\n)*作弊或违纪";
+                Match simplifyMatch = Regex.Match(htmlStr, simplifyRegex);
+                string simplifiedStr = simplifyMatch.Value;
+                simplifiedStr = simplifiedStr.Replace("\n", "");
+                simplifiedStr = simplifiedStr.Replace("&nbsp;", "");
+
+                //Start regex match
+                string regexStr = @"";
+                //jies = Regex.Matches(simplifiedStr, regexStr);
+                
+            }
+            catch
+            {
+
+            }
+        }*/
+
+        /*private async void IniList(bool IsRefresh)
         {
             refreshIndicator.IsActive = true;
             if (!IsRefresh)
@@ -135,7 +228,7 @@ namespace Fzuhelper.Views
                 MainPage.SendToast("获取数据出错，请刷新");
             }
             refreshIndicator.IsActive = false;
-        }
+        }*/
 
         private async void GetAllGradePoint(bool IsRefresh)
         {
@@ -256,7 +349,7 @@ namespace Fzuhelper.Views
 
         private void refreshScore_Click(object sender, RoutedEventArgs e)
         {
-            IniList(true);
+            InitScore(true);
         }
 
         private static ObservableCollection<Group> CreateGroups()

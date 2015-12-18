@@ -34,17 +34,19 @@ namespace Fzuhelper.Views
 
         //private static bool initialAgain = true;
 
-        private static bool firstTimeLoad = true;
+        //private static bool firstTimeLoad = true;
 
         private ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
 
-        private string jsonData;
+        private string htmlStr;
 
-        private TimetableReturnValue ttrv;
+        private MatchCollection jies;
 
-        private static List<TableInfoArr> tableInfo;
+        //private TimetableReturnValue ttrv;
 
-        private string currentWeek;
+        //private static List<TableInfoArr> tableInfo;
+
+        //private string currentWeek;
 
         private static List<List<SingleDayCourseArr>> singleDayCourseList = new List<List<SingleDayCourseArr>>();
 
@@ -84,51 +86,346 @@ namespace Fzuhelper.Views
 
             //IniList(false);
 
-            InitTimetable();
+            InitTimetable(false);
         }
 
-        private async void InitTimetable()
+        private async void InitTimetable(bool IsRefresh)
         {
-            await MockGet();
+            refreshIndicator.IsActive = true;
 
-            await FormatTimetable();
+            IniWeekOption();
+
+            await MockGet(IsRefresh);
+
+            FormatTimetable();
+
+            refreshIndicator.IsActive = false;
         }
 
-        private async Task MockGet()
+        private async Task MockGet(bool IsRefresh)
+        {
+            if (IsRefresh)
+            {
+                try
+                {
+                    await MockJwch.MockGetTimetable();
+                }
+                catch
+                {
+                    MainPage.SendToast("获取课表失败");
+                }
+            }
+            else
+            {
+                try
+                {
+                    //Get data from storage
+                    StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
+                    StorageFile timetable = await fzuhelperDataFolder.GetFileAsync("timetable.dat");
+                    htmlStr = await FileIO.ReadTextAsync(timetable);
+                }
+                catch
+                {
+                    try
+                    {
+                        await MockJwch.MockGetTimetable();
+                        await MockGet(false);
+                    }
+                    catch
+                    {
+                        MainPage.SendToast("获取课表失败");
+                    }
+                }
+            }
+        }
+
+        private void FormatTimetable()
         {
             try
             {
-                await MockJwch.MockGetTimetable();
-            }
-            catch
-            {
-                MainPage.SendToast("获取课表失败");
-            }
-        }
-
-        private async Task FormatTimetable()
-        {
-            try
-            {
-                //Get data from storage
-                StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
-                StorageFile timetable = await fzuhelperDataFolder.GetFileAsync("timetable.dat");
-                string htmlStr = await FileIO.ReadTextAsync(timetable);
-
                 //Simplify htmlStr
                 string simplifyRegex = @"星期日.*备注";
                 Match simplifyMatch = Regex.Match(htmlStr, simplifyRegex);
                 string simplifiedStr = simplifyMatch.Value;
+                simplifiedStr = simplifiedStr.Replace("\n", "");
+                simplifiedStr = simplifiedStr.Replace("&nbsp;", "");
 
                 //Start regex match
                 string regexStr = @"<td((?!上午)(?!下午)(?!晚上)(?!\d{1,2}\:\d\d).)*?</td>";
-                MatchCollection jies = Regex.Matches(simplifiedStr, regexStr);
-                
-                System.Diagnostics.Debug.WriteLine(jies.Count);
+                jies = Regex.Matches(simplifiedStr, regexStr);
+                //Get week from settings
+                string weekStr = localSettings.Values["week"].ToString();
+                string weekRegex = @"\d{1,2}";
+                Match weekMatch = Regex.Match(weekStr, weekRegex);
+                int week = int.Parse(weekMatch.Value);
+                ShowOneWeekCourse(week);
             }
             catch
             {
 
+            }
+        }
+
+        private void ShowOneWeekCourse(int week)
+        {
+            //Clear timetable
+            while (timeTableMain.Children.Count != 18)
+            {
+                timeTableMain.Children.Remove(timeTableMain.Children.Last());
+            }
+            //Clear single day course arr list
+            singleDayCourseList.Clear();
+            //Add SingleDayCourseArr
+            for(int m = 1; m <= 7; m++)
+            {
+                singleDayCourseList.Add(new List<SingleDayCourseArr>());
+            }
+
+            //Regex string
+            string courseNameRegex = @"<font.*?(?=</font>)";
+            string placeRegex = @"\[[^|]*\]+?";
+            string teacherNameRegex = @"<br>[^\[\]]{0,20}?<br>";
+            string betweenWeekRegex = @"\d\d-\d\d";
+
+            Regex neatCourseNameRegex = new Regex("<font[^>]*>");
+            Regex neatTeacherNameRegex = new Regex("<br[^>]*>");
+            int count = 0;
+            List<int> skip = new List<int>();
+            foreach (Match jie in jies)
+            {
+                //Check if skip
+                if (skip.Contains(count))
+                {
+                    count++;
+                    continue;
+                }
+
+                MatchCollection courseNameMatch = Regex.Matches(jie.Value, courseNameRegex);
+                if(courseNameMatch.Count == 0)
+                {
+                    count++;
+                    continue;
+                }
+                MatchCollection placeMatch = Regex.Matches(jie.Value, placeRegex);
+                MatchCollection teacherNameMatch = Regex.Matches(jie.Value, teacherNameRegex);
+                MatchCollection betweenWeekMatch = Regex.Matches(jie.Value, betweenWeekRegex);
+
+                //Check rowspan
+                int rowspans = 0;
+                int round = 1;
+                while (true)
+                {
+                    if (count + 7 * round <= 76)
+                    {
+                        if (jie.Value.Equals(jies[count + 7 * round].Value))
+                        {
+                            skip.Add(count + 7 * round);
+                            rowspans++;
+                            round++;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                //Select a class that at the range of betweenWeek
+                int selectedIndex = 0;
+                bool withinRange = false;
+                int k = 0;
+                foreach (Match item in betweenWeekMatch)
+                {
+                    string[] ws = item.Value.Split('-');
+                    int startW = int.Parse(ws[0]);
+                    int endW = int.Parse(ws[1]);
+                    if (week >= startW && week <= endW)
+                    {
+                        selectedIndex = k;
+                        withinRange = true;
+                        if (placeMatch[k].Value.Contains("单")&& week % 2 == 0)
+                        {
+                            withinRange = false;
+                        }else if (placeMatch[k].Value.Contains("双")&& week % 2 != 0)
+                        {
+                            withinRange = false;
+                        } else
+                        {
+                            break;
+                        }
+                    }
+                    if (!withinRange)
+                    {
+                        selectedIndex = k;
+                    }
+                    k++;
+                }
+
+                //
+                string courseName = courseNameMatch[selectedIndex].Value;
+                string place = placeMatch[selectedIndex].Value;
+                string teacherName = teacherNameMatch[selectedIndex].Value;
+                string betweenWeek = betweenWeekMatch[selectedIndex].Value;
+                courseName = neatCourseNameRegex.Replace(courseName, "");
+                teacherName = neatTeacherNameRegex.Replace(teacherName, "");
+
+                //Check if even-odd week course
+                if (place.Contains("单")&& week % 2 == 0)
+                {
+                    withinRange = false;
+                }
+                else if (place.Contains("双")&& week % 2 != 0)
+                {
+                    withinRange = false;
+                }
+
+                //jieDuration = jie ~ jie+rowspans
+                string jieDur = (count / 7 + 1).ToString() + "-" + (count / 7 + 1 + rowspans).ToString();
+                if (withinRange)
+                {
+                    singleDayCourseList[count % 7].Add(new SingleDayCourseArr(courseName, place, teacherName, betweenWeek + "周", jieDur));
+                }
+
+                //Create stackpanel and visible textblocks
+                StackPanel stackPanel = new StackPanel() { Orientation = Orientation.Vertical };
+                TextBlock textBlock1 = new TextBlock();
+                TextBlock textBlock2 = new TextBlock();
+                if (withinRange)
+                {
+                    textBlock1 = new TextBlock() { Text = courseName, MaxLines = 2, Foreground = new SolidColorBrush(Color.FromArgb(255, 255, 255, 255)), FontSize = 12, HorizontalAlignment = HorizontalAlignment.Stretch, TextWrapping = TextWrapping.WrapWholeWords };
+                    textBlock2 = new TextBlock() { Text = place, Foreground = new SolidColorBrush(Color.FromArgb(255, 255, 255, 255)), FontSize = 12, HorizontalAlignment = HorizontalAlignment.Stretch, TextWrapping = TextWrapping.WrapWholeWords };
+                }
+                else
+                {
+                    textBlock1 = new TextBlock() { Text = courseName, MaxLines = 2, Foreground = new SolidColorBrush(Color.FromArgb(255, 219, 219, 219)), FontSize = 12, HorizontalAlignment = HorizontalAlignment.Stretch, TextWrapping = TextWrapping.WrapWholeWords };
+                    textBlock2 = new TextBlock() { Text = place, Foreground = new SolidColorBrush(Color.FromArgb(255, 219, 219, 219)), FontSize = 12, HorizontalAlignment = HorizontalAlignment.Stretch, TextWrapping = TextWrapping.WrapWholeWords };
+                }
+                //Invisible textblocks
+                TextBlock textBlock3 = new TextBlock() { Text = teacherName, Visibility = Visibility.Collapsed };
+                TextBlock textBlock4 = new TextBlock() { Text = betweenWeek, Visibility = Visibility.Collapsed };
+                TextBlock textBlock5 = new TextBlock() { Text = jieDur, Visibility = Visibility.Collapsed };
+
+                //Add elements to stackpanel
+                stackPanel.Children.Add(textBlock1);
+                stackPanel.Children.Add(textBlock2);
+                stackPanel.Children.Add(textBlock3);
+                stackPanel.Children.Add(textBlock4);
+                stackPanel.Children.Add(textBlock5);
+
+                //Create button
+                Button singleCourse = new Button() { Margin = new Thickness(2), Padding = new Thickness(2), HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch };
+                singleCourse.Content = stackPanel;
+                singleCourse.Flyout = AddCourseFlyout(stackPanel);
+                //singleCourse.Click += SingleCourse_Click;
+                //Set course background color
+                if (!withinRange)
+                {
+                    singleCourse.Background = new SolidColorBrush(Color.FromArgb(255, 234, 234, 234));
+                }
+                else if (courseColorDict.ContainsKey(courseName))
+                {
+                    singleCourse.Background = courseColorDict[courseName];
+                }
+                else
+                {
+                    singleCourse.Background = courseColor[courseColorCount];
+                    courseColorDict.Add(courseName, courseColor[courseColorCount]);
+                    courseColorCount++;
+                    if (courseColorCount == courseColorAmount)
+                    {
+                        courseColorCount = 0;
+                    }
+                }
+
+                Grid.SetColumn(singleCourse, (count % 7) + 1);
+                Grid.SetRow(singleCourse, (count / 7) + 1);
+                if (rowspans != 0)
+                {
+                    Grid.SetRowSpan(singleCourse, rowspans + 1);
+                }
+                timeTableMain.Children.Add(singleCourse);
+
+                count++;
+            }
+            ShowSingleDayCourse(week);
+        }
+
+        private void ShowSingleDayCourse(int week)
+        {
+            //Set selected week
+            selectedWeek.Text = "第" + week.ToString() + "周";
+            if (selectedWeek.Text == localSettings.Values["week"].ToString())
+            {
+                selectedWeekBtn.Label = "(本周)";
+            }
+            else
+            {
+                selectedWeekBtn.Label = "(非本周)";
+            }
+            //Set single day course data binding
+            MonCourse.ItemsSource = singleDayCourseList[0];
+            TueCourse.ItemsSource = singleDayCourseList[1];
+            WedCourse.ItemsSource = singleDayCourseList[2];
+            ThuCourse.ItemsSource = singleDayCourseList[3];
+            FriCourse.ItemsSource = singleDayCourseList[4];
+            SatCourse.ItemsSource = singleDayCourseList[5];
+            SunCourse.ItemsSource = singleDayCourseList[6];
+            //Display current day
+            int currentDayIndex = weekToInt.w2i[DateTime.Now.DayOfWeek.ToString()];
+            singleDayCourseView.SelectedItem = singleDayCourseView.Items.ElementAt(currentDayIndex);
+            //Check empty
+            foreach (List<SingleDayCourseArr> item in singleDayCourseList)
+            {
+                if (item.Count == 0)
+                {
+                    TextBlock tb = new TextBlock() { Text = "没课啦", FontSize = 24, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+                    ListViewItem lvi = new ListViewItem();
+                    lvi.Content = tb;
+                    switch (singleDayCourseList.IndexOf(item))
+                    {
+                        case 0:
+                            MonCourse.ItemsSource = null;
+                            MonCourse.Items.Clear();
+                            MonCourse.Items.Add(lvi);
+                            break;
+                        case 1:
+                            TueCourse.ItemsSource = null;
+                            TueCourse.Items.Clear();
+                            TueCourse.Items.Add(lvi);
+                            break;
+                        case 2:
+                            WedCourse.ItemsSource = null;
+                            WedCourse.Items.Clear();
+                            WedCourse.Items.Add(lvi);
+                            break;
+                        case 3:
+                            ThuCourse.ItemsSource = null;
+                            ThuCourse.Items.Clear();
+                            ThuCourse.Items.Add(lvi);
+                            break;
+                        case 4:
+                            FriCourse.ItemsSource = null;
+                            FriCourse.Items.Clear();
+                            FriCourse.Items.Add(lvi);
+                            break;
+                        case 5:
+                            SatCourse.ItemsSource = null;
+                            SatCourse.Items.Clear();
+                            SatCourse.Items.Add(lvi);
+                            break;
+                        case 6:
+                            SunCourse.ItemsSource = null;
+                            SunCourse.Items.Clear();
+                            SunCourse.Items.Add(lvi);
+                            break;
+                        default:
+                            break;
+                    }
+                }
             }
         }
 
@@ -139,7 +436,7 @@ namespace Fzuhelper.Views
             timetableBackgroundImg.ImageSource = img;
         }
 
-        private async void IniList(bool IsRefresh)
+        /*private async void IniList(bool IsRefresh)
         {
             refreshIndicator.IsActive = true;
             if (!IsRefresh)
@@ -197,9 +494,9 @@ namespace Fzuhelper.Views
                 MainPage.SendToast("获取数据出错，请刷新");
             }
             refreshIndicator.IsActive = false;
-        }
+        }*/
 
-        private void ShowOneWeekCourse(int week)
+        /*private void ShowOneWeekCourse(int week)
         {
             //System.Diagnostics.Debug.WriteLine(timeTableMain.Children.Count);
             //Clear timetable
@@ -216,7 +513,7 @@ namespace Fzuhelper.Views
 
             for (int i = 1; i <= 7; i++)
             {
-                for(int jie = 1; jie <= 11; jie++)
+                for (int jie = 1; jie <= 11; jie++)
                 {
                     dayCourse = JsonConvert.DeserializeObject<DayCourseArr>(tableInfo[week].courseArr[i.ToString()][jie.ToString()].ToString());
                     dayCourseList.Add(dayCourse);
@@ -227,7 +524,7 @@ namespace Fzuhelper.Views
             courseColorCount = 0;
             courseColorDict.Clear();
 
-            for(int i = 1; i <= 7; i++)
+            for (int i = 1; i <= 7; i++)
             {
                 //Initialize single day course arr list
                 singleDayCourseList.Add(new List<SingleDayCourseArr>());
@@ -246,9 +543,9 @@ namespace Fzuhelper.Views
                     while (true)
                     {
                         //System.Diagnostics.Debug.WriteLine(rowspans);
-                        if(currentCourse.courseName== dayCourseList[(i - 1) * 11 + jie + rowspans].courseName&& currentCourse.place == dayCourseList[(i - 1) * 11 + jie + rowspans].place&& currentCourse.teacherName == dayCourseList[(i - 1) * 11 + jie + rowspans].teacherName&& currentCourse.betweenWeek == dayCourseList[(i - 1) * 11 + jie + rowspans].betweenWeek)
+                        if (currentCourse.courseName == dayCourseList[(i - 1) * 11 + jie + rowspans].courseName && currentCourse.place == dayCourseList[(i - 1) * 11 + jie + rowspans].place && currentCourse.teacherName == dayCourseList[(i - 1) * 11 + jie + rowspans].teacherName && currentCourse.betweenWeek == dayCourseList[(i - 1) * 11 + jie + rowspans].betweenWeek)
                         {
-                            if(( ((i - 1) * 11) < ((i - 1) * 11 + jie + rowspans) && ((i - 1) * 11 + jie + rowspans) <= ((i - 1) * 11 + 10)))
+                            if ((((i - 1) * 11) < ((i - 1) * 11 + jie + rowspans) && ((i - 1) * 11 + jie + rowspans) <= ((i - 1) * 11 + 10)))
                             {
                                 rowspans++;
                             }
@@ -260,15 +557,15 @@ namespace Fzuhelper.Views
                     }
                     //jieDuration = jie ~ jie+rowspans
                     string jieDur = jie.ToString() + "-" + (jie + rowspans).ToString();
-                    singleDayCourseList[i - 1].Add(new SingleDayCourseArr(currentCourse.courseName, currentCourse.place, currentCourse.teacherName, currentCourse.betweenWeek+"周", jieDur));
+                    singleDayCourseList[i - 1].Add(new SingleDayCourseArr(currentCourse.courseName, currentCourse.place, currentCourse.teacherName, currentCourse.betweenWeek + "周", jieDur));
                     //Create stackpanel and visible textblocks
-                    StackPanel stackPanel = new StackPanel() { Orientation=Orientation.Vertical};
-                    TextBlock textBlock1 = new TextBlock() { Text = currentCourse.courseName, MaxLines = 2, Foreground = new SolidColorBrush(Color.FromArgb(255,255,255,255)), FontSize=12 , HorizontalAlignment=HorizontalAlignment.Stretch , TextWrapping=TextWrapping.WrapWholeWords};
-                    TextBlock textBlock2 = new TextBlock() {Text = currentCourse.place , Foreground = new SolidColorBrush(Color.FromArgb(255, 255, 255, 255)), FontSize = 12, HorizontalAlignment = HorizontalAlignment.Stretch , TextWrapping = TextWrapping.WrapWholeWords};
+                    StackPanel stackPanel = new StackPanel() { Orientation = Orientation.Vertical };
+                    TextBlock textBlock1 = new TextBlock() { Text = currentCourse.courseName, MaxLines = 2, Foreground = new SolidColorBrush(Color.FromArgb(255, 255, 255, 255)), FontSize = 12, HorizontalAlignment = HorizontalAlignment.Stretch, TextWrapping = TextWrapping.WrapWholeWords };
+                    TextBlock textBlock2 = new TextBlock() { Text = currentCourse.place, Foreground = new SolidColorBrush(Color.FromArgb(255, 255, 255, 255)), FontSize = 12, HorizontalAlignment = HorizontalAlignment.Stretch, TextWrapping = TextWrapping.WrapWholeWords };
                     //Invisible textblocks
-                    TextBlock textBlock3 = new TextBlock() {Text = currentCourse.teacherName , Visibility = Visibility.Collapsed};
-                    TextBlock textBlock4 = new TextBlock() {Text = currentCourse.betweenWeek, Visibility = Visibility.Collapsed };
-                    TextBlock textBlock5 = new TextBlock() {Text = jieDur, Visibility = Visibility.Collapsed };
+                    TextBlock textBlock3 = new TextBlock() { Text = currentCourse.teacherName, Visibility = Visibility.Collapsed };
+                    TextBlock textBlock4 = new TextBlock() { Text = currentCourse.betweenWeek, Visibility = Visibility.Collapsed };
+                    TextBlock textBlock5 = new TextBlock() { Text = jieDur, Visibility = Visibility.Collapsed };
 
                     //Add elements to stackpanel
                     stackPanel.Children.Add(textBlock1);
@@ -278,7 +575,7 @@ namespace Fzuhelper.Views
                     stackPanel.Children.Add(textBlock5);
 
                     //Create button
-                    Button singleCourse = new Button() {  Margin=new Thickness(2) , Padding=new Thickness(2) , HorizontalAlignment=HorizontalAlignment.Stretch , VerticalAlignment=VerticalAlignment.Stretch };
+                    Button singleCourse = new Button() { Margin = new Thickness(2), Padding = new Thickness(2), HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch };
                     singleCourse.Content = stackPanel;
                     singleCourse.Flyout = AddCourseFlyout(stackPanel);
                     singleCourse.Click += SingleCourse_Click;
@@ -292,7 +589,7 @@ namespace Fzuhelper.Views
                         singleCourse.Background = courseColor[courseColorCount];
                         courseColorDict.Add(currentCourse.courseName, courseColor[courseColorCount]);
                         courseColorCount++;
-                        if(courseColorCount == courseColorAmount)
+                        if (courseColorCount == courseColorAmount)
                         {
                             courseColorCount = 0;
                         }
@@ -330,7 +627,7 @@ namespace Fzuhelper.Views
             int currentDayIndex = weekToInt.w2i[DateTime.Now.DayOfWeek.ToString()];
             singleDayCourseView.SelectedItem = singleDayCourseView.Items.ElementAt(currentDayIndex);
             //Check empty
-            foreach(List<SingleDayCourseArr> item in singleDayCourseList)
+            foreach (List<SingleDayCourseArr> item in singleDayCourseList)
             {
                 if (item.Count == 0)
                 {
@@ -379,7 +676,7 @@ namespace Fzuhelper.Views
                     }
                 }
             }
-        }
+        }*/
 
         private Flyout AddCourseFlyout(StackPanel sp)
         {
@@ -455,22 +752,22 @@ namespace Fzuhelper.Views
 
         private void refreshTimetable_Click(object sender, RoutedEventArgs e)
         {
-            IniList(true);
+            InitTimetable(true);
         }
 
-        private void SingleCourse_Click(object sender, RoutedEventArgs e)
+        /*private void SingleCourse_Click(object sender, RoutedEventArgs e)
         {
             Button singleCourseBtn = (Button)sender;
-        }
+        }*/
 
         private void IniWeekOption()
         {
             topbar.SecondaryCommands.Clear();
-            foreach (TableInfoArr t in tableInfo)
+            for(int i=1;i<=25;i++)
             {
                 AppBarButton weekOption = new AppBarButton();
-                weekOption.Label = t.week;
-                if (t.week.Equals(tableInfo[0].week))
+                weekOption.Label = "第"+i.ToString()+"周";
+                if (weekOption.Label==localSettings.Values["week"].ToString())
                 {
                     weekOption.Label += "(本周)";
                 }
@@ -482,7 +779,7 @@ namespace Fzuhelper.Views
         private void Week_Switch(object sender, RoutedEventArgs e)
         {
             AppBarButton selectedWeek = (AppBarButton)sender;
-            ShowOneWeekCourse(topbar.SecondaryCommands.IndexOf(selectedWeek));
+            ShowOneWeekCourse(topbar.SecondaryCommands.IndexOf(selectedWeek) + 1);
         }
 
         private class TimetableReturnValue

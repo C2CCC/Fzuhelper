@@ -19,9 +19,10 @@ namespace Fzuhelper.Views
         private static ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
 
         private static string mockLoginUri = "http://59.77.226.32/logincheck.asp",
-            mockGetTimetableUri = "http://59.77.226.35/student/xkjg/wdkb/kb_xs.aspx";
+            mockGetTimetableUri = "http://59.77.226.35/student/xkjg/wdkb/kb_xs.aspx",
+            mockGetScoreUri = "http://59.77.226.35/student/xyzk/cjyl/score_sheet.aspx";
 
-        private static async void SaveFile(string fileName,string fileData)
+        private static async Task SaveFile(string fileName,string fileData)
         {
             StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
             StorageFile file = await fzuhelperDataFolder.CreateFileAsync(fileName + ".dat", CreationCollisionOption.ReplaceExisting);
@@ -36,6 +37,8 @@ namespace Fzuhelper.Views
             request.DefaultRequestHeaders.Host = "59.77.226.32";
             request.DefaultRequestHeaders.Connection.Add("keep-alive");
             request.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+            request.DefaultRequestHeaders.Add("Upgrade-Insecure-Requests", "1");
+            request.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36");
             return request;
         }
 
@@ -68,10 +71,17 @@ namespace Fzuhelper.Views
                 //id
                 string queryId = response.Headers.Location.Query.Substring(4);
                 //ASP.NET_SessionId
-                string[] respCookie = (string[])response.Headers.GetValues("Set-Cookie");
-                string aspDotNetSessionCookie = respCookie[0].Split(';')[0];
+                try
+                {
+                    string[] respCookie = (string[])response.Headers.GetValues("Set-Cookie");
+                    string aspDotNetSessionCookie = respCookie[0].Split(';')[0];
+                    localSettings.Values["AspDotNetSessionCookie"] = aspDotNetSessionCookie;
+                }
+                catch
+                {
+
+                }
                 localSettings.Values["QueryId"] = queryId;
-                localSettings.Values["AspDotNetSessionCookie"] = aspDotNetSessionCookie;
                 localSettings.Values["IsLogedIn"] = true;
 
                 request.Dispose();
@@ -107,7 +117,42 @@ namespace Fzuhelper.Views
                 }
 
                 //Save as file
-                SaveFile("timetable", responseStr);
+                await SaveFile("timetable", responseStr);
+
+                request.Dispose();
+
+                return true;
+            }
+            catch
+            {
+                request.Dispose();
+                return false;
+            }
+        }
+
+        public static async Task<bool> MockGetScore()
+        {
+            HttpClient request = CreateHttpClient();
+            try
+            {
+                HttpResponseMessage response = new HttpResponseMessage();
+                request.DefaultRequestHeaders.Add("Referer", "http://59.77.226.35/left.aspx" + "?id=" + localSettings.Values["QueryId"].ToString());
+                request.DefaultRequestHeaders.Add("Cookie", localSettings.Values["AspDotNetSessionCookie"].ToString());
+
+                //Get response
+                response = await request.GetAsync(mockGetScoreUri + "?id=" + localSettings.Values["QueryId"].ToString() + "&bj=score");
+                string responseStr = await response.Content.ReadAsStringAsync();
+
+                //If session expired
+                if (responseStr.Contains("会话过期，请重新登录"))
+                {
+                    await MockLogin();
+                    request.Dispose();
+                    return await MockGetScore();
+                }
+
+                //Save as file
+                await SaveFile("score", responseStr);
 
                 request.Dispose();
 

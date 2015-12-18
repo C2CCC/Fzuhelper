@@ -16,6 +16,8 @@ namespace Fzuhelper.Views
     {
         //private static StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
 
+        private static ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
+
         private static string getTimetable = "http://219.229.132.35/api/api.php/Jwch/timeTable.html",
             getScore = "http://219.229.132.35/api/api.php/Jwch/getMark.html",
             getExamRoom = "http://219.229.132.35/api/api.php/Jwch/examRooms.html",
@@ -239,10 +241,11 @@ namespace Fzuhelper.Views
             //Get token
             try
             {
-                //from storage
+                //from localsettings
                 StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
-                StorageFile accInfo = await fzuhelperDataFolder.GetFileAsync("accInfo.dat");
-                string sn = (await FileIO.ReadTextAsync(accInfo)).Split('\n')[0];
+                //StorageFile accInfo = await fzuhelperDataFolder.GetFileAsync("accInfo.dat");
+                //string sn = (await FileIO.ReadTextAsync(accInfo)).Split('\n')[0];
+                string sn = localSettings.Values["muser"].ToString();
                 //Get data
                 HttpFormUrlEncodedContent content = new HttpFormUrlEncodedContent(new[] { new KeyValuePair<string, string>("token", gradePointToken), new KeyValuePair<string, string>("year", year), new KeyValuePair<string, string>("term", term), new KeyValuePair<string, string>("sn", sn) });
                 string reg = "false";

@@ -150,7 +150,14 @@ namespace Fzuhelper
 
             try
             {
-                userName.Text = localSettings.Values["stuname"].ToString();
+                userName.Text = localSettings.Values["username"].ToString();
+            }
+            catch
+            {
+
+            }
+            try
+            {
                 weekTime.Text = localSettings.Values["week"].ToString();
                 termTime.Text = localSettings.Values["term"].ToString();
             }
@@ -390,6 +397,18 @@ namespace Fzuhelper
         private async void logOut_ItemClick(object sender, ItemClickEventArgs e)
         {
             localSettings.Values["IsLogedIn"] = false;
+            try
+            {
+                localSettings.Values.Remove("username");
+                localSettings.Values.Remove("muser");
+                localSettings.Values.Remove("passwd");
+                //localSettings.Values.Remove("AspDotNetSessionCookie");
+                localSettings.Values.Remove("QueryId");
+            }
+            catch
+            {
+
+            }
             try
             {
                 StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");

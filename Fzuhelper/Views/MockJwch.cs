@@ -9,6 +9,7 @@ using System.Net;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Net.Http;
+using HtmlAgilityPack;
 
 namespace Fzuhelper.Views
 {
@@ -20,7 +21,8 @@ namespace Fzuhelper.Views
 
         private static string mockLoginUri = "http://59.77.226.32/logincheck.asp",
             mockGetTimetableUri = "http://59.77.226.35/student/xkjg/wdkb/kb_xs.aspx",
-            mockGetScoreUri = "http://59.77.226.35/student/xyzk/cjyl/score_sheet.aspx";
+            mockGetScoreUri = "http://59.77.226.35/student/xyzk/cjyl/score_sheet.aspx",
+            mockGetExamRoomUri = "http://59.77.226.35/student/xkjg/examination/exam_list.aspx";
 
         private static async Task SaveFile(string fileName,string fileData)
         {
@@ -63,11 +65,24 @@ namespace Fzuhelper.Views
 
                 //Get response
                 response = await request.PostAsync(mockLoginUri, content);
+                string responseStr1 = await response.Content.ReadAsStringAsync();
+                if (responseStr1.Contains("alert"))
+                {
+                    MainPage.SendToast("账号或密码错误");
+                    return false;
+                }
 
                 //response.Headers.GetValues("Set-Cookie");
                 Uri redirectUri = response.Headers.Location;
                 request.DefaultRequestHeaders.Remove("Origin");
                 response = await request.GetAsync(redirectUri);
+                string responseStr2 = await response.Content.ReadAsStringAsync();
+                if (responseStr2.Contains("alert"))
+                {
+                    MainPage.SendToast("账号或密码错误");
+                    return false;
+                }
+
                 //id
                 string queryId = response.Headers.Location.Query.Substring(4);
                 //ASP.NET_SessionId
@@ -164,6 +179,79 @@ namespace Fzuhelper.Views
                 return false;
             }
         }
+
+        public static async Task<bool> MockGetExamRoom()
+        {
+            HttpClient request = CreateHttpClient();
+            try
+            {
+                HttpResponseMessage response = new HttpResponseMessage();
+                request.DefaultRequestHeaders.Add("Referer", "http://59.77.226.35/left.aspx" + "?id=" + localSettings.Values["QueryId"].ToString());
+                request.DefaultRequestHeaders.Add("Cookie", localSettings.Values["AspDotNetSessionCookie"].ToString());
+
+                //Get response
+                response = await request.GetAsync(mockGetExamRoomUri + "?id=" + localSettings.Values["QueryId"].ToString());
+                string responseStr = await response.Content.ReadAsStringAsync();
+
+                //If session expired
+                if (responseStr.Contains("会话过期，请重新登录"))
+                {
+                    await MockLogin();
+                    request.Dispose();
+                    return await MockGetExamRoom();
+                }
+
+                //Save as file
+                await SaveFile("examroom", responseStr);
+
+                request.Dispose();
+
+                return true;
+            }
+            catch
+            {
+                request.Dispose();
+                return false;
+            }
+        }
+
+        public static async Task<bool> MockGetCurrentUser()
+        {
+            HttpClient request = CreateHttpClient();
+            try
+            {
+                HttpResponseMessage response = new HttpResponseMessage();
+                request.DefaultRequestHeaders.Add("Referer", "http://59.77.226.35/left.aspx" + "?id=" + localSettings.Values["QueryId"].ToString());
+                request.DefaultRequestHeaders.Add("Cookie", localSettings.Values["AspDotNetSessionCookie"].ToString());
+
+                //Get response
+                string uri = "http://59.77.226.35/jcxx/xsxx/StudentInformation.aspx" + "?id=" + localSettings.Values["QueryId"].ToString();
+                response = await request.GetAsync(uri);
+                string responseStr = await response.Content.ReadAsStringAsync();
+                
+                try
+                {
+                    HtmlDocument doc = new HtmlDocument();
+                    doc.LoadHtml(responseStr);
+                    HtmlNode usernameNode = doc.GetElementbyId("ContentPlaceHolder1_LB_xm");
+                    localSettings.Values["username"] = usernameNode.InnerText;
+                }
+                catch
+                {
+
+                }
+
+                request.Dispose();
+
+                return true;
+            }
+            catch
+            {
+                request.Dispose();
+                return false;
+            }
+        }
+
         /*
         #region get from jwch,get region
 

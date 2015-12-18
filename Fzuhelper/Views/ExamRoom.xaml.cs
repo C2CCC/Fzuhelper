@@ -16,6 +16,8 @@ using Windows.UI.Xaml.Navigation;
 using Windows.Web.Http;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
+using HtmlAgilityPack;
+using System.Text.RegularExpressions;
 
 // “空白页”项模板在 http://go.microsoft.com/fwlink/?LinkId=234238 上提供
 
@@ -28,24 +30,133 @@ namespace Fzuhelper.Views
     {
         //private StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
 
-        private static bool getAgain = true;
+        //private static bool getAgain = true;
 
-        private static bool firstTimeLoad = true;
+        //private static bool firstTimeLoad = true;
 
-        private string jsonData;
+        //private string jsonData;
 
-        private ExamRoomReturnValue errv;
+        private string htmlStr;
 
-        private List<ExamRoomArr> examArr;
+        //private ExamRoomReturnValue errv;
+
+        private List<ExamRoomArr> examArr = new List<ExamRoomArr>();
 
         public ExamRoom()
         {
             this.InitializeComponent();
 
-            IniList(false);
+            //IniList(false);
+
+            InitExamRoom(false);
         }
 
-        private async void IniList(bool IsRefresh)
+        private async void InitExamRoom(bool IsRefresh)
+        {
+            refreshIndicator.IsActive = true;
+
+            await MockGet(IsRefresh);
+
+            FormatExamRoom();
+
+            refreshIndicator.IsActive = false;
+        }
+
+        private async Task MockGet(bool IsRefresh)
+        {
+            if (IsRefresh)
+            {
+                try
+                {
+                    await MockJwch.MockGetExamRoom();
+                }
+                catch
+                {
+                    MainPage.SendToast("获取考场失败");
+                }
+            }
+            else
+            {
+                try
+                {
+                    //Get data from storage
+                    StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
+                    StorageFile examroom = await fzuhelperDataFolder.GetFileAsync("examroom.dat");
+                    htmlStr = await FileIO.ReadTextAsync(examroom);
+                }
+                catch
+                {
+                    try
+                    {
+                        await MockJwch.MockGetExamRoom();
+                        await MockGet(false);
+                    }
+                    catch
+                    {
+                        MainPage.SendToast("获取考场失败");
+                    }
+                }
+            }
+        }
+
+        private void FormatExamRoom()
+        {
+            try
+            {
+                examArr.Clear();
+                htmlStr = htmlStr.Replace("\n", "");
+                htmlStr = htmlStr.Replace("\r", "");
+                htmlStr = htmlStr.Replace("\t", "");
+                HtmlDocument doc = new HtmlDocument();
+                doc.LoadHtml(htmlStr);
+                HtmlNode examroomTableNode = doc.GetElementbyId("ContentPlaceHolder1_DataList_xxk");
+                HtmlNodeCollection trs = examroomTableNode.ChildNodes;
+                trs.First().Remove();
+                //trs.Last().Remove();
+
+                foreach (HtmlNode node in trs)
+                {
+                    foreach (HtmlNode tdNode in node.ChildNodes)
+                    {
+                        if(tdNode.InnerHtml == "")
+                        {
+                            continue;
+                        }
+                        tdNode.FirstChild.Remove();
+                        string courseName = tdNode.FirstChild.ChildNodes[1].InnerText;
+                        string teacherName = tdNode.FirstChild.ChildNodes[5].InnerText;
+                        string dtr = tdNode.FirstChild.ChildNodes[7].InnerText;
+                        dtr = dtr.Replace(" ", "");
+                        string examDate;
+                        string examTime;
+                        string examRoom;
+                        if (dtr == "")
+                        {
+                            examDate = "";
+                            examTime = "";
+                            examRoom = "";
+                        }
+                        else
+                        {
+                            string[] dateTimeRoom = Regex.Split(dtr, "&nbsp;&nbsp;&nbsp;&nbsp;");
+                            examDate = dateTimeRoom[0];
+                            examTime = dateTimeRoom[1];
+                            examRoom = dateTimeRoom[2];
+                        }
+                        ExamRoomArr erai = new ExamRoomArr(courseName, teacherName, examDate, examTime, examRoom);
+                        examArr.Add(erai);
+                    }
+                }
+                listView.ItemsSource = null;
+                listView.ItemsSource = examArr;
+            }
+            catch
+            {
+
+            }
+        }
+
+        /*private async void IniList(bool IsRefresh)
         {
             refreshIndicator.IsActive = true;
             if (!IsRefresh)
@@ -110,7 +221,7 @@ namespace Fzuhelper.Views
                 MainPage.SendToast("获取数据出错，请刷新");
             }
             refreshIndicator.IsActive = false;
-        }
+        }*/
 
         private class ExamRoomReturnValue
         {
@@ -123,11 +234,22 @@ namespace Fzuhelper.Views
 
         private void refreshExamRoom_Click(object sender, RoutedEventArgs e)
         {
-            IniList(true);
+            InitExamRoom(true);
         }
 
         private class ExamRoomArr
         {
+            public ExamRoomArr() { }
+
+            public ExamRoomArr(string courseName,string teacherName,string examDate,string examTime,string examRoom)
+            {
+                this.courseName = courseName;
+                this.teacherName = teacherName;
+                this.examDate = examDate;
+                this.examTime = examTime;
+                this.examRoom = examRoom;
+            }
+
             public string courseName { get; set; }
 
             public string teacherName { get; set; }

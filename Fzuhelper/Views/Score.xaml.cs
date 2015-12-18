@@ -48,19 +48,19 @@ namespace Fzuhelper.Views
 
         private ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
 
-        private static bool getAgain = true;
+        //private static bool getAgain = true;
 
-        private static bool firstTimeLoad = true;
+        //private static bool firstTimeLoad = true;
 
         private string jsonData;
 
         private string htmlStr;
 
-        private ScoreReturnValue srv;
+        //private ScoreReturnValue srv;
 
         private GradePointReturnValue gprv;
 
-        private static List<ScoreArr> markArr;
+        private static List<ScoreArr> markArr = new List<ScoreArr>();
 
         private static List<GradePointArr> gradePointArr = new List<GradePointArr>();
 
@@ -84,6 +84,8 @@ namespace Fzuhelper.Views
             await MockGet(IsRefresh);
 
             FormatScore();
+
+            await GetAllGradePoint(IsRefresh);
 
             refreshIndicator.IsActive = false;
         }
@@ -129,38 +131,45 @@ namespace Fzuhelper.Views
         {
             try
             {
+                markArr.Clear();
+                htmlStr = htmlStr.Replace("\n", "");
+                htmlStr = htmlStr.Replace("\r", "");
+                htmlStr = htmlStr.Replace("\t", "");
                 HtmlDocument doc = new HtmlDocument();
                 doc.LoadHtml(htmlStr);
                 HtmlNode scoreTableNode = doc.GetElementbyId("ContentPlaceHolder1_DataList_xxk");
                 HtmlNodeCollection trs = scoreTableNode.ChildNodes;
+                trs.First().Remove();
+                trs.Last().Remove();
+
+                foreach (HtmlNode node in trs)
+                {
+                    foreach (HtmlNode tdNode in node.ChildNodes)
+                    {
+                        if (tdNode.InnerHtml == "")
+                        {
+                            continue;
+                        }
+                        tdNode.FirstChild.Remove();
+                        string courseTime = tdNode.FirstChild.ChildNodes[3].InnerText;
+                        string courseName = tdNode.FirstChild.ChildNodes[5].InnerText;
+                        string credit = tdNode.FirstChild.ChildNodes[7].InnerText;
+                        string sore = tdNode.FirstChild.ChildNodes[9].InnerText;
+                        string gradePoint = tdNode.FirstChild.ChildNodes[11].InnerText;
+
+                        ScoreArr sai = new ScoreArr(courseTime, courseName, credit, sore, gradePoint);
+                        markArr.Add(sai);
+                    }
+                }
+                Groups = CreateGroups();
+                cvsGroups.Source = Groups;
+                listViewZoomOutView.ItemsSource = cvsGroups.View.CollectionGroups;
             }
             catch
             {
 
             }
         }
-
-        /*private void FormatScore()
-        {
-            try
-            {
-                //Simplify htmlStr
-                string simplifyRegex = @"考试时间地点(.|\n)*作弊或违纪";
-                Match simplifyMatch = Regex.Match(htmlStr, simplifyRegex);
-                string simplifiedStr = simplifyMatch.Value;
-                simplifiedStr = simplifiedStr.Replace("\n", "");
-                simplifiedStr = simplifiedStr.Replace("&nbsp;", "");
-
-                //Start regex match
-                string regexStr = @"";
-                //jies = Regex.Matches(simplifiedStr, regexStr);
-                
-            }
-            catch
-            {
-
-            }
-        }*/
 
         /*private async void IniList(bool IsRefresh)
         {
@@ -230,7 +239,7 @@ namespace Fzuhelper.Views
             refreshIndicator.IsActive = false;
         }*/
 
-        private async void GetAllGradePoint(bool IsRefresh)
+        private async Task GetAllGradePoint(bool IsRefresh)
         {
             gradePointListView.ItemsSource = null;
             gradePointArr.Clear();
@@ -295,7 +304,18 @@ namespace Fzuhelper.Views
 
         private class ScoreArr
         {
-            public string majorType { get; set; }
+            public ScoreArr() { }
+
+            public ScoreArr(string courseTime,string courseName,string credit,string sore,string gradePoint)
+            {
+                this.courseTime = courseTime;
+                this.courseName = courseName;
+                this.credit = credit;
+                this.sore = sore;
+                this.gradePoint = gradePoint;
+            }
+
+            //public string majorType { get; set; }
 
             public string courseTime { get; set; }
 
@@ -307,9 +327,9 @@ namespace Fzuhelper.Views
 
             public string gradePoint { get; set; }
 
-            public string getPoint { get; set; }
+            //public string getPoint { get; set; }
 
-            public string minorType { get; set; }
+            //public string minorType { get; set; }
         }
 
         private class GradePointReturnValue
@@ -330,6 +350,11 @@ namespace Fzuhelper.Views
             public string rank_total { get; set; }
         }
 
+        private void refreshScore_Click(object sender, RoutedEventArgs e)
+        {
+            InitScore(true);
+        }
+
         //Define Group
         private class Group
         {
@@ -345,11 +370,6 @@ namespace Fzuhelper.Views
             {
                 this.Items = new ObservableCollection<ScoreArr>();
             }
-        }
-
-        private void refreshScore_Click(object sender, RoutedEventArgs e)
-        {
-            InitScore(true);
         }
 
         private static ObservableCollection<Group> CreateGroups()

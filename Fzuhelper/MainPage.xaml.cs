@@ -90,6 +90,7 @@ namespace Fzuhelper
             toggleLoginState();
             loginCheck = await MockJwch.MockLogin();
             toggleLoginState();
+            await MockJwch.MockGetCurrentUser();
             if (loginCheck)
             {
                 Frame.Navigate(typeof(AppShell));

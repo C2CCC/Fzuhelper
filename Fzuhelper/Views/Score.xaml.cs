@@ -94,11 +94,8 @@ namespace Fzuhelper.Views
         {
             if (IsRefresh)
             {
-                try
-                {
-                    await MockJwch.MockGetScore();
-                }
-                catch
+                bool status = await MockJwch.MockGetScore();
+                if (!status)
                 {
                     MainPage.SendToast("获取成绩失败");
                 }
@@ -114,14 +111,14 @@ namespace Fzuhelper.Views
                 }
                 catch
                 {
-                    try
-                    {
-                        await MockJwch.MockGetScore();
-                        await MockGet(false);
-                    }
-                    catch
+                    bool status = await MockJwch.MockGetScore();
+                    if (!status)
                     {
                         MainPage.SendToast("获取成绩失败");
+                    }
+                    else
+                    {
+                        await MockGet(false);
                     }
                 }
             }

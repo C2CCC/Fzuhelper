@@ -106,11 +106,8 @@ namespace Fzuhelper.Views
         {
             if (IsRefresh)
             {
-                try
-                {
-                    await MockJwch.MockGetTimetable();
-                }
-                catch
+                bool status = await MockJwch.MockGetTimetable();
+                if (!status)
                 {
                     MainPage.SendToast("获取课表失败");
                 }
@@ -126,14 +123,14 @@ namespace Fzuhelper.Views
                 }
                 catch
                 {
-                    try
-                    {
-                        await MockJwch.MockGetTimetable();
-                        await MockGet(false);
-                    }
-                    catch
+                    bool status = await MockJwch.MockGetTimetable();
+                    if (!status)
                     {
                         MainPage.SendToast("获取课表失败");
+                    }
+                    else
+                    {
+                        await MockGet(false);
                     }
                 }
             }

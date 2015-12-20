@@ -66,11 +66,8 @@ namespace Fzuhelper.Views
         {
             if (IsRefresh)
             {
-                try
-                {
-                    await MockJwch.MockGetExamRoom();
-                }
-                catch
+                bool status = await MockJwch.MockGetExamRoom();
+                if (!status)
                 {
                     MainPage.SendToast("获取考场失败");
                 }
@@ -86,14 +83,14 @@ namespace Fzuhelper.Views
                 }
                 catch
                 {
-                    try
-                    {
-                        await MockJwch.MockGetExamRoom();
-                        await MockGet(false);
-                    }
-                    catch
+                    bool status = await MockJwch.MockGetExamRoom();
+                    if (!status)
                     {
                         MainPage.SendToast("获取考场失败");
+                    }
+                    else
+                    {
+                        await MockGet(false);
                     }
                 }
             }

@@ -97,7 +97,7 @@ namespace Fzuhelper
             }
             else
             {
-
+                MainPage.SendToast("网络错误");
             }
         }
 

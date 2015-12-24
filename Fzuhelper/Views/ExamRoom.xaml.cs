@@ -70,6 +70,18 @@ namespace Fzuhelper.Views
                 if (!status)
                 {
                     MainPage.SendToast("获取考场失败");
+                    return;
+                }
+                try
+                {
+                    //Get data from storage
+                    StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
+                    StorageFile examroom = await fzuhelperDataFolder.GetFileAsync("examroom.dat");
+                    htmlStr = await FileIO.ReadTextAsync(examroom);
+                }
+                catch
+                {
+
                 }
             }
             else

@@ -110,6 +110,18 @@ namespace Fzuhelper.Views
                 if (!status)
                 {
                     MainPage.SendToast("获取课表失败");
+                    return;
+                }
+                try
+                {
+                    //Get data from storage
+                    StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
+                    StorageFile timetable = await fzuhelperDataFolder.GetFileAsync("timetable.dat");
+                    htmlStr = await FileIO.ReadTextAsync(timetable);
+                }
+                catch
+                {
+
                 }
             }
             else

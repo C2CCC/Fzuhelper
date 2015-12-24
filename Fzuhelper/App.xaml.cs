@@ -76,13 +76,6 @@ namespace Fzuhelper
                 Window.Current.Content = rootFrame;
             }
 
-            //获取学期，当前周
-            string term = "", week = "";
-            term = await HttpRequest.TryGetTerm();
-            localSettings.Values["term"] = term;
-            week = await HttpRequest.TryGetWeek();
-            localSettings.Values["week"] = week;
-
             if (rootFrame.Content == null)
             {
                 // 当导航堆栈尚未还原时，导航到第一页，

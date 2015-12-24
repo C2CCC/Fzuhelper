@@ -98,6 +98,18 @@ namespace Fzuhelper.Views
                 if (!status)
                 {
                     MainPage.SendToast("获取成绩失败");
+                    return;
+                }
+                try
+                {
+                    //Get data from storage
+                    StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
+                    StorageFile score = await fzuhelperDataFolder.GetFileAsync("score.dat");
+                    htmlStr = await FileIO.ReadTextAsync(score);
+                }
+                catch
+                {
+
                 }
             }
             else

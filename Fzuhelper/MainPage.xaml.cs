@@ -91,6 +91,19 @@ namespace Fzuhelper
             loginCheck = await MockJwch.MockLogin();
             toggleLoginState();
             await MockJwch.MockGetCurrentUser();
+            try
+            {
+                //获取学期，当前周
+                string term = "", week = "";
+                term = await HttpRequest.TryGetTerm();
+                localSettings.Values["term"] = term;
+                week = await HttpRequest.TryGetWeek();
+                localSettings.Values["week"] = week;
+            }
+            catch
+            {
+
+            }
             if (loginCheck)
             {
                 Frame.Navigate(typeof(AppShell));

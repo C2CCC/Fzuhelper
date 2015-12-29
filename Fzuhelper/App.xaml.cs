@@ -76,6 +76,16 @@ namespace Fzuhelper
                 Window.Current.Content = rootFrame;
             }
 
+            //get week and term
+            try
+            {
+                await MockJwch.MockGetCurrentCalendar();
+            }
+            catch
+            {
+
+            }
+
             if (rootFrame.Content == null)
             {
                 // 当导航堆栈尚未还原时，导航到第一页，

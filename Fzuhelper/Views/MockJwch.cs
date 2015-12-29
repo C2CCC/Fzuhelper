@@ -22,7 +22,9 @@ namespace Fzuhelper.Views
         private static string mockLoginUri = "http://59.77.226.32/logincheck.asp",
             mockGetTimetableUri = "http://59.77.226.35/student/xkjg/wdkb/kb_xs.aspx",
             mockGetScoreUri = "http://59.77.226.35/student/xyzk/cjyl/score_sheet.aspx",
-            mockGetExamRoomUri = "http://59.77.226.35/student/xkjg/examination/exam_list.aspx";
+            mockGetExamRoomUri = "http://59.77.226.35/student/xkjg/examination/exam_list.aspx",
+            mockGetCurrentUserUri = "http://59.77.226.35/jcxx/xsxx/StudentInformation.aspx",
+            mockJwchCalendarUri = "http://59.77.226.32/tt.asp";
 
         private static async Task SaveFile(string fileName,string fileData)
         {
@@ -225,7 +227,7 @@ namespace Fzuhelper.Views
                 request.DefaultRequestHeaders.Add("Cookie", localSettings.Values["AspDotNetSessionCookie"].ToString());
 
                 //Get response
-                string uri = "http://59.77.226.35/jcxx/xsxx/StudentInformation.aspx" + "?id=" + localSettings.Values["QueryId"].ToString();
+                string uri = mockGetCurrentUserUri + "?id=" + localSettings.Values["QueryId"].ToString();
                 response = await request.GetAsync(uri);
                 string responseStr = await response.Content.ReadAsStringAsync();
                 
@@ -252,357 +254,66 @@ namespace Fzuhelper.Views
             }
         }
 
-        /*
-        #region get from jwch,get region
-
-        //get exam room
-        public static async Task<string> GetExamRoom()
+        public static async Task<bool> MockGetCurrentCalendar()
         {
-            string jsonData = "";
-            //Get token
+            HttpClient request = CreateHttpClient();
             try
             {
-                //from storage
-                StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
-                StorageFile usrInfo = await fzuhelperDataFolder.GetFileAsync("usrInfo.dat");
-                string token = (await FileIO.ReadTextAsync(usrInfo)).Split('\n')[1];
-                //Get data
-                HttpFormUrlEncodedContent content = new HttpFormUrlEncodedContent(new[] { new KeyValuePair<string, string>("token", token) });
-                jsonData = await HttpRequest.GetFromJwch("get", "getExamRoom", content, true);
-                if (jsonData == "relogin")
-                {
-                    jsonData = await HttpRequest.GetFromJwch("get", "getExamRoom", content, true);
-                }
-                if (jsonData == "error")
-                {
-                    return jsonData;
-                }
+                HttpResponseMessage response = new HttpResponseMessage();
+                string week = "", term = "";
+                //Get response
+                response = await request.GetAsync(mockJwchCalendarUri);
+                string responseStr = await response.Content.ReadAsStringAsync();
+
+                string weekRegexStr = @"<font.*?(?=</font>)";
+                string termRegexStr = @"\d{4}.{3}\d{2}.{3}";
                 try
                 {
-                    //Save as file
-                    StorageFile examRoom = await fzuhelperDataFolder.CreateFileAsync("examRoom.dat", CreationCollisionOption.ReplaceExisting);
-                    await FileIO.WriteTextAsync(examRoom, jsonData);
+                    Match weekMt = Regex.Match(responseStr, weekRegexStr);
+                    week = "第" + weekMt.Value.Substring(22) + "周";
                 }
                 catch
                 {
 
                 }
-                return jsonData;
-            }
-            catch
-            {
-                return "error";
-            }
-        }
-
-        //get score
-        public static async Task<string> GetScore()
-        {
-            string jsonData = "";
-            //Get token
-            try
-            {
-                //from storage
-                StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
-                StorageFile usrInfo = await fzuhelperDataFolder.GetFileAsync("usrInfo.dat");
-                string token = (await FileIO.ReadTextAsync(usrInfo)).Split('\n')[1];
-                //Get data
-                HttpFormUrlEncodedContent content = new HttpFormUrlEncodedContent(new[] { new KeyValuePair<string, string>("token", token) });
-                jsonData = await HttpRequest.GetFromJwch("get", "getScore", content, true);
-                if (jsonData == "relogin")
-                {
-                    jsonData = await HttpRequest.GetFromJwch("get", "getScore", content, true);
-                }
-                if (jsonData == "error")
-                {
-                    return jsonData;
-                }
                 try
                 {
-                    //Save as file
-                    StorageFile score = await fzuhelperDataFolder.CreateFileAsync("score.dat", CreationCollisionOption.ReplaceExisting);
-                    await FileIO.WriteTextAsync(score, jsonData);
+                    Match termMt = Regex.Match(responseStr, termRegexStr);
+                    term = termMt.Value.Substring(0, 4) + "学年" + termMt.Value.Substring(7, 2) + "学期";
                 }
                 catch
                 {
 
                 }
-                return jsonData;
-            }
-            catch
-            {
-                return "error";
-            }
-        }
 
-        //get grade point(one term)
-        public static async Task<string> GetGradePoint(string year, string term)
-        {
-            string jsonData = "";
-            //Get token
-            try
-            {
-                //from storage
-                StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
-                StorageFile accInfo = await fzuhelperDataFolder.GetFileAsync("accInfo.dat");
-                string sn = (await FileIO.ReadTextAsync(accInfo)).Split('\n')[0];
-                //Get data
-                HttpFormUrlEncodedContent content = new HttpFormUrlEncodedContent(new[] { new KeyValuePair<string, string>("token", gradePointToken), new KeyValuePair<string, string>("year", year), new KeyValuePair<string, string>("term", term), new KeyValuePair<string, string>("sn", sn) });
-                string reg = "false";
-                for (int i = 0; i < 10; i++)
-                {
-                    await Task.Delay(300);
-                    jsonData = await HttpRequest.GetFromJwch("get", "getGradePoint", content);
-                    try
-                    {
-                        Match mt = Regex.Match(jsonData, reg);
-                        if (!mt.Success)
-                        {
-                            break;
-                        }
-                    }
-                    catch
-                    {
-
-                    }
-                }
-                if (jsonData == "error")
-                {
-                    return jsonData;
-                }
+                //Set week
                 try
                 {
-                    //Save as file
-                    StorageFile gradepoint = await fzuhelperDataFolder.CreateFileAsync(year + term + ".dat", CreationCollisionOption.ReplaceExisting);
-                    await FileIO.WriteTextAsync(gradepoint, jsonData);
+                    localSettings.Values["week"] = week;
                 }
                 catch
                 {
 
                 }
-                return jsonData;
-            }
-            catch
-            {
-                return "error";
-            }
-        }
-
-        //get timetable
-        public static async Task<string> GetTimetable()
-        {
-            string jsonData = "";
-            //Get token
-            try
-            {
-                //from storage
-                StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
-                StorageFile accInfo = await fzuhelperDataFolder.GetFileAsync("accInfo.dat");
-                string stunum = (await FileIO.ReadTextAsync(accInfo)).Split('\n')[0];
-                //Get data
-                HttpFormUrlEncodedContent content = new HttpFormUrlEncodedContent(new[] { new KeyValuePair<string, string>("stunum", stunum) });
-                jsonData = await HttpRequest.GetFromJwch("get", "getTimetable", content);
-                if (jsonData == "error")
-                {
-                    return jsonData;
-                }
+                //Set term
                 try
                 {
-                    //Save as file
-                    StorageFile timetable = await fzuhelperDataFolder.CreateFileAsync("timetable.dat", CreationCollisionOption.ReplaceExisting);
-                    await FileIO.WriteTextAsync(timetable, jsonData);
+                    localSettings.Values["term"] = term;
                 }
                 catch
                 {
 
                 }
-                return jsonData;
+
+                request.Dispose();
+
+                return true;
             }
             catch
             {
-                return "error";
+                request.Dispose();
+                return false;
             }
         }
-
-        //get book search result
-        public static async Task<string> GetBookSearchResult(string key, string page)
-        {
-            string jsonData = "";
-            try
-            {
-                //Get data
-                HttpFormUrlEncodedContent content = new HttpFormUrlEncodedContent(new[] { new KeyValuePair<string, string>("key", key), new KeyValuePair<string, string>("page", page) });
-                jsonData = await HttpRequest.GetFromJwch("get", "getBookSearchResult", content);
-                return jsonData;
-            }
-            catch
-            {
-                return "";
-            }
-        }
-
-        //get jwch notice
-        public static async Task<string> GetJwchNotice(string page)
-        {
-            string jsonData = "";
-            try
-            {
-                //Get data
-                HttpFormUrlEncodedContent content = new HttpFormUrlEncodedContent(new[] { new KeyValuePair<string, string>("page", page) });
-                jsonData = await HttpRequest.GetFromJwch("get", "getJwchNotice", content);
-                return jsonData;
-            }
-            catch
-            {
-                return "";
-            }
-        }
-
-        public static async Task<string> GetEmptyRoom(string time, string place, string star, string end, string term)
-        {
-            string jsonData = "";
-            string regexStr = @"{.*sum.*}";
-            try
-            {
-                //Get data
-                HttpFormUrlEncodedContent content = new HttpFormUrlEncodedContent(new[] { new KeyValuePair<string, string>("time", time), new KeyValuePair<string, string>("place", place), new KeyValuePair<string, string>("star", star), new KeyValuePair<string, string>("end", end), new KeyValuePair<string, string>("term", term) });
-                jsonData = await HttpRequest.GetFromJwch("get", "getEmptyRoom", content);
-                try
-                {
-                    Match mt = Regex.Match(jsonData, regexStr);
-                    jsonData = mt.Value;
-                }
-                catch
-                {
-
-                }
-                return jsonData;
-            }
-            catch
-            {
-                return "";
-            }
-        }
-
-        #endregion
-
-
-        //get term,week
-        public static async Task<string> TryGetTerm()
-        {
-            string term = "";
-            try
-            {
-                term = await GetTermFromJwch();
-                return term;
-            }
-            catch
-            {
-                try
-                {
-                    StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
-                    StorageFile termInfo = await fzuhelperDataFolder.GetFileAsync("termInfo.dat");
-                    term = await FileIO.ReadTextAsync(termInfo);
-                }
-                catch
-                {
-
-                }
-                return term;
-            }
-        }
-
-        private static async Task<string> GetTermFromJwch()
-        {
-            string strMsg = "";
-            string regexStr = @"\d{4}.{3}\d{2}.{3}";
-            //string regexStr = @"\d{4}\w{2}\d{2}\w{2}";
-            string term = "";
-            string url = "http://59.77.226.32/tt.asp";
-            WebRequest request = WebRequest.Create(url);
-            WebResponse response = request.GetResponseAsync().Result;
-            StreamReader reader = new StreamReader(response.GetResponseStream());
-            strMsg = reader.ReadToEnd();
-
-            Match mt = Regex.Match(strMsg, regexStr);
-            term = mt.Value;
-
-            term = term.Substring(0, 4) + "学年" + term.Substring(7, 2) + "学期";
-
-            reader.Dispose();
-            response.Dispose();
-            try
-            {
-                StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
-                StorageFile termInfo = await fzuhelperDataFolder.CreateFileAsync("termInfo.dat", CreationCollisionOption.ReplaceExisting);
-                await FileIO.WriteTextAsync(termInfo, term);
-            }
-            catch
-            {
-
-            }
-            return term;
-        }
-
-        public static async Task<string> TryGetWeek()
-        {
-            string week = "";
-            try
-            {
-                week = await GetCurrentWeek();
-                return week;
-            }
-            catch
-            {
-                try
-                {
-                    StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
-                    StorageFile weekInfo = await fzuhelperDataFolder.GetFileAsync("weekInfo.dat");
-                    week = await FileIO.ReadTextAsync(weekInfo);
-                }
-                catch
-                {
-
-                }
-                return week;
-            }
-        }
-
-        public static async Task<string> GetCurrentWeek()
-        {
-            string jsonData = "";
-            //Get data
-            HttpFormUrlEncodedContent content = new HttpFormUrlEncodedContent(new[] { new KeyValuePair<string, string>("", "") });
-            jsonData = await HttpRequest.GetFromJwch("get", "getCurrentWeek", content);
-            LogInReturnValue r = JsonConvert.DeserializeObject<LogInReturnValue>(jsonData);
-            jsonData = r.data["week"];
-            jsonData = "第" + jsonData + "周";
-            try
-            {
-                StorageFolder fzuhelperDataFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("FzuhelperData");
-                StorageFile weekInfo = await fzuhelperDataFolder.CreateFileAsync("weekInfo.dat", CreationCollisionOption.ReplaceExisting);
-                await FileIO.WriteTextAsync(weekInfo, jsonData);
-            }
-            catch
-            {
-
-            }
-            return jsonData;
-        }
-
-
-
-        private class CheckJwch
-        {
-            public bool status { get; set; }
-
-            public string errMsg { get; set; }
-        }
-
-        private class LogInReturnValue : CheckJwch
-        {
-            public Dictionary<string, string> data { get; set; }
-        }*/
-
     }
 }

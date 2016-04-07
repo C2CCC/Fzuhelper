@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using Windows.Web.Http;
 using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
+using Fzuhelper.Controls;
 
 // “空白页”项模板在 http://go.microsoft.com/fwlink/?LinkId=234238 上提供
 
@@ -97,7 +98,8 @@ namespace Fzuhelper.Views
                 bool status = await MockJwch.MockGetScore();
                 if (!status)
                 {
-                    MainPage.SendToast("获取成绩失败");
+                    NotifyPopup notifyPopup = new NotifyPopup("获取成绩失败");
+                    notifyPopup.Show();
                     return;
                 }
                 try
@@ -126,7 +128,8 @@ namespace Fzuhelper.Views
                     bool status = await MockJwch.MockGetScore();
                     if (!status)
                     {
-                        MainPage.SendToast("获取成绩失败");
+                        NotifyPopup notifyPopup = new NotifyPopup("获取成绩失败");
+                        notifyPopup.Show();
                     }
                     else
                     {
@@ -295,7 +298,8 @@ namespace Fzuhelper.Views
                 {
                     if (IsRefresh)
                     {
-                        MainPage.SendToast(year + term + "绩点更新失败");
+                        NotifyPopup notifyPopup = new NotifyPopup(year + term + "绩点更新失败");
+                        notifyPopup.Show();
                     }
                 }
             }

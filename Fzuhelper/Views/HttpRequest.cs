@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using System.Net;
 using System.IO;
 using System.Text.RegularExpressions;
+using Fzuhelper.Controls;
 
 namespace Fzuhelper.Views
 {
@@ -105,7 +106,8 @@ namespace Fzuhelper.Views
             }
             catch
             {
-                MainPage.SendToast("网络错误");
+                NotifyPopup notifyPopup = new NotifyPopup("网络错误");
+                notifyPopup.Show();
                 return "error";
             }
         }
@@ -138,7 +140,8 @@ namespace Fzuhelper.Views
                 }
                 catch
                 {
-                    MainPage.SendToast("网络错误");
+                    NotifyPopup notifyPopup = new NotifyPopup("网络错误");
+                    notifyPopup.Show();
                     return;
                 }
                 LogInReturnValue l = JsonConvert.DeserializeObject<LogInReturnValue>(response);
@@ -147,7 +150,8 @@ namespace Fzuhelper.Views
             }
             catch
             {
-                MainPage.SendToast("身份过期，请重新登录");
+                NotifyPopup notifyPopup = new NotifyPopup("身份过期，请重新登录");
+                notifyPopup.Show();
                 return;
             }
         }

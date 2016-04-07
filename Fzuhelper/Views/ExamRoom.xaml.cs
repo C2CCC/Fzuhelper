@@ -18,6 +18,7 @@ using Newtonsoft.Json;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using System.Text.RegularExpressions;
+using Fzuhelper.Controls;
 
 // “空白页”项模板在 http://go.microsoft.com/fwlink/?LinkId=234238 上提供
 
@@ -69,7 +70,8 @@ namespace Fzuhelper.Views
                 bool status = await MockJwch.MockGetExamRoom();
                 if (!status)
                 {
-                    MainPage.SendToast("获取考场失败");
+                    NotifyPopup notifyPopup = new NotifyPopup("获取考场失败");
+                    notifyPopup.Show();
                     return;
                 }
                 try
@@ -98,7 +100,8 @@ namespace Fzuhelper.Views
                     bool status = await MockJwch.MockGetExamRoom();
                     if (!status)
                     {
-                        MainPage.SendToast("获取考场失败");
+                        NotifyPopup notifyPopup = new NotifyPopup("获取考场失败");
+                        notifyPopup.Show();
                     }
                     else
                     {

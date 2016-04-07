@@ -20,6 +20,7 @@ using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Text;
 using Windows.UI;
 using System.Text.RegularExpressions;
+using Fzuhelper.Controls;
 
 // “空白页”项模板在 http://go.microsoft.com/fwlink/?LinkId=234238 上提供
 
@@ -109,7 +110,8 @@ namespace Fzuhelper.Views
                 bool status = await MockJwch.MockGetTimetable();
                 if (!status)
                 {
-                    MainPage.SendToast("获取课表失败");
+                    NotifyPopup notifyPopup = new NotifyPopup("获取课表失败");
+                    notifyPopup.Show();
                     return;
                 }
                 try
@@ -138,7 +140,8 @@ namespace Fzuhelper.Views
                     bool status = await MockJwch.MockGetTimetable();
                     if (!status)
                     {
-                        MainPage.SendToast("获取课表失败");
+                        NotifyPopup notifyPopup = new NotifyPopup("获取课表失败");
+                        notifyPopup.Show();
                     }
                     else
                     {

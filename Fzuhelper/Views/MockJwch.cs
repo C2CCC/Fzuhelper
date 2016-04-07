@@ -10,6 +10,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Net.Http;
 using HtmlAgilityPack;
+using Fzuhelper.Controls;
 
 namespace Fzuhelper.Views
 {
@@ -70,7 +71,9 @@ namespace Fzuhelper.Views
                 string responseStr1 = await response.Content.ReadAsStringAsync();
                 if (responseStr1.Contains("alert"))
                 {
-                    MainPage.SendToast("账号或密码错误");
+                    NotifyPopup notifyPopup = new NotifyPopup("账号或密码错误");
+                    notifyPopup.Show();
+                    request.Dispose();
                     return false;
                 }
 
@@ -79,14 +82,7 @@ namespace Fzuhelper.Views
                 request.DefaultRequestHeaders.Remove("Origin");
                 response = await request.GetAsync(redirectUri);
                 string responseStr2 = await response.Content.ReadAsStringAsync();
-                if (responseStr2.Contains("alert"))
-                {
-                    MainPage.SendToast("账号或密码错误");
-                    return false;
-                }
 
-                //id
-                string queryId = response.Headers.Location.Query.Substring(4);
                 //ASP.NET_SessionId
                 try
                 {
@@ -98,6 +94,18 @@ namespace Fzuhelper.Views
                 {
 
                 }
+
+                if (responseStr2.Contains("alert"))
+                {
+                    NotifyPopup notifyPopup = new NotifyPopup("账号或密码错误");
+                    notifyPopup.Show();
+                    request.Dispose();
+                    return false;
+                }
+
+                //id
+                string queryId = response.Headers.Location.Query.Substring(4);
+
                 localSettings.Values["QueryId"] = queryId;
                 localSettings.Values["IsLogedIn"] = true;
 

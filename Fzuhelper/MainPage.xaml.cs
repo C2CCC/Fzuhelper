@@ -22,6 +22,7 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Net.Http;
 using Fzuhelper.Views;
+using Fzuhelper.Controls;
 
 //“空白页”项模板在 http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409 上有介绍
 
@@ -72,7 +73,8 @@ namespace Fzuhelper
             if (username.Text == "" || password.Password == "")
             {
                 //Notify
-                SendToast("账号或密码不能为空！");
+                NotifyPopup notifyPopup = new NotifyPopup("账号或密码不能为空！");
+                notifyPopup.Show();
                 return;
             }
             //Get usr and pwd
@@ -90,6 +92,10 @@ namespace Fzuhelper
             toggleLoginState();
             loginCheck = await MockJwch.MockLogin();
             toggleLoginState();
+            if (!loginCheck)
+            {
+                return;
+            }
             await MockJwch.MockGetCurrentUser();
             //get week and term
             try
@@ -107,7 +113,8 @@ namespace Fzuhelper
             }
             else
             {
-                MainPage.SendToast("网络错误");
+                NotifyPopup notifyPopup = new NotifyPopup("网络错误");
+                notifyPopup.Show();
             }
         }
 

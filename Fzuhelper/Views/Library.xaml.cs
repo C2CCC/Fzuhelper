@@ -14,6 +14,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Windows.Web.Http;
 using Newtonsoft.Json;
+using Fzuhelper.Controls;
 
 // “空白页”项模板在 http://go.microsoft.com/fwlink/?LinkId=234238 上提供
 
@@ -76,7 +77,8 @@ namespace Fzuhelper.Views
             }
             if(b.errMsg == "图书馆请求信息失败")
             {
-                MainPage.SendToast(b.errMsg);
+                NotifyPopup notifyPopup = new NotifyPopup(b.errMsg);
+                notifyPopup.Show();
                 return false;
             }
             bookSearchResult.ItemsSource = b.data;
